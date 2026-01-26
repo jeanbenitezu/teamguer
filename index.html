@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadistica TEAMGUER - Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="assets/logo.png" type="image/svg+xml">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="brand">
+                <a href="index.html" class="logo-link">
+                    <img src="assets/logo.png" alt="TEAMGUER" class="logo">
+                </a>
+                <div>
+                    <h1>Estadistica TEAMGUER</h1>
+                    <div class="app-subtitle">Personal Trainer Dashboard</div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button id="newControlBtn" class="btn btn-primary">+ Nuevo Control</button>
+                <select id="patientSelect" class="patient-select">
+                    <option value="">Seleccionar Paciente</option>
+                </select>
+                <button id="newPatientBtn" class="btn btn-secondary">+ Nuevo Paciente</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Patient Sticky Info Bar -->
+    <div id="patientStickyInfo" class="patient-sticky-info hidden">
+        <div class="container">
+            <div class="patient-sticky-summary">
+                <span class="patient-name" id="stickyPatientName">-</span>
+                <div class="patient-basic-info">
+                    <span><i>👤</i> <span id="stickyPatientAge">-</span> años</span>
+                    <span><i>📏</i> <span id="stickyPatientHeight">-</span> cm</span>
+                    <span><i>📊</i> <span id="stickyTotalControls">-</span> controles</span>
+                </div>
+            </div>
+            <div class="patient-sticky-score">
+                <span>🏆</span>
+                <span id="stickyMonthlyScore">-</span>/100
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <main class="main-dashboard">
+        <div class="container">
+            <!-- Welcome or No Patient Selected -->
+            <div id="welcomeScreen" class="welcome-screen">
+                <h2>👋 Bienvenido al Sistema de Control</h2>
+                <p>Selecciona un paciente o crea uno nuevo para comenzar</p>
+                <div class="quick-actions">
+                    <button id="quickNewPatient" class="btn btn-primary btn-large">Crear Paciente</button>
+                </div>
+            </div>
+
+            <!-- Patient Dashboard -->
+            <div id="patientDashboard" class="patient-dashboard hidden">
+                <!-- Patient Info -->
+                <section class="patient-info">
+                    <div class="patient-card">
+                        <h2 id="patientName">Nombre del Paciente</h2>
+                        <div class="patient-stats">
+                            <div class="stat">
+                                <span class="label">Edad</span>
+                                <span id="patientAge" class="value">-</span>
+                            </div>
+                            <div class="stat">
+                                <span class="label">Estatura</span>
+                                <span id="patientHeight" class="value">-</span>
+                            </div>
+                            <div class="stat">
+                                <span class="label">Controles</span>
+                                <span id="totalControls" class="value">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Charts Section -->
+                <section class="charts-section">
+                    <div class="charts-grid">
+                        <!-- Evolución Completa -->
+                        <div class="chart-container chart-full-width">
+                            <h3>📈 Evolución Mensual Completa</h3>
+                            <canvas id="evolutionChart"></canvas>
+                        </div>
+
+                        <!-- Composición Corporal Actual -->
+                        <div class="chart-container">
+                            <h3>🥧 Composición Corporal Actual</h3>
+                            <canvas id="compositionChart"></canvas>
+                        </div>
+
+                        <!-- Comparación Progreso -->
+                        <div class="chart-container">
+                            <h3>📊 Progreso Inicial vs Actual</h3>
+                            <canvas id="progressChart"></canvas>
+                        </div>
+
+                        <!-- Tendencias Clave -->
+                        <div class="chart-container">
+                            <h3>📈 Tendencias Clave</h3>
+                            <canvas id="trendsChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Score Section -->
+                <section class="score-section">
+                    <div class="score-card">
+                        <h3>🏆 Puntaje del Mes</h3>
+                        <div class="score-display">
+                            <span id="monthlyScore" class="score-number">85</span>
+                            <span class="score-max">/100</span>
+                        </div>
+                        <div class="score-trend">
+                            <span id="scoreTrend" class="trend-indicator">↗️ +5 pts vs mes anterior</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Progress Cards -->
+                <section class="progress-section">
+                    <div class="progress-grid">
+                        <div class="progress-card">
+                            <div class="progress-header">
+                                <h4>⚖️ Peso</h4>
+                                <span id="weightTrend" class="trend-arrow">→</span>
+                            </div>
+                            <div class="progress-values">
+                                <span id="currentWeight" class="current">75.5 kg</span>
+                                <span id="weightChange" class="change">-0.5 kg</span>
+                            </div>
+                        </div>
+
+                        <div class="progress-card">
+                            <div class="progress-header">
+                                <h4>🔥 % Grasa</h4>
+                                <span id="fatTrend" class="trend-arrow">↓</span>
+                            </div>
+                            <div class="progress-values">
+                                <span id="currentFat" class="current">18.5%</span>
+                                <span id="fatChange" class="change">-1.2%</span>
+                            </div>
+                        </div>
+
+                        <div class="progress-card">
+                            <div class="progress-header">
+                                <h4>💪 % Músculo</h4>
+                                <span id="muscleTrend" class="trend-arrow">↗️</span>
+                            </div>
+                            <div class="progress-values">
+                                <span id="currentMuscle" class="current">42.8%</span>
+                                <span id="muscleChange" class="change">+0.8%</span>
+                            </div>
+                        </div>
+
+                        <div class="progress-card">
+                            <div class="progress-header">
+                                <h4>💧 % Agua</h4>
+                                <span id="waterTrend" class="trend-arrow">→</span>
+                            </div>
+                            <div class="progress-values">
+                                <span id="currentWater" class="current">58.2%</span>
+                                <span id="waterChange" class="change">+0.1%</span>
+                            </div>
+                        </div>
+
+                        <div class="progress-card">
+                            <div class="progress-header">
+                                <h4>📊 IMC</h4>
+                                <span id="imcTrend" class="trend-arrow">↓</span>
+                            </div>
+                            <div class="progress-values">
+                                <span id="currentIMC" class="current">23.4</span>
+                                <span id="imcChange" class="change">-0.3</span>
+                            </div>
+                        </div>
+
+                        <div class="progress-card">
+                            <div class="progress-header">
+                                <h4>⭕ Cintura</h4>
+                                <span id="waistTrend" class="trend-arrow">↓</span>
+                            </div>
+                            <div class="progress-values">
+                                <span id="currentWaist" class="current">75.5 cm</span>
+                                <span id="waistChange" class="change">-2.0 cm</span>
+                            </div>
+                        </div>
+
+                        <div class="progress-card">
+                            <div class="progress-header">
+                                <h4>🩺 Presión</h4>
+                                <span id="pressureTrend" class="trend-arrow">→</span>
+                            </div>
+                            <div class="progress-values">
+                                <span id="currentPressure" class="current">120/80</span>
+                                <span id="pressureChange" class="change">Normal</span>
+                            </div>
+                        </div>
+
+                        <div class="progress-card">
+                            <div class="progress-header">
+                                <h4>💓 FC Reposo</h4>
+                                <span id="hrTrend" class="trend-arrow">↓</span>
+                            </div>
+                            <div class="progress-values">
+                                <span id="currentHR" class="current">62 bpm</span>
+                                <span id="hrChange" class="change">-3 bpm</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Achievements -->
+                <section class="achievements-section">
+                    <h3>🎯 Logros</h3>
+                    <div id="achievementsList" class="achievements-grid">
+                        <!-- Los logros se llenarán dinámicamente -->
+                    </div>
+                </section>
+
+                <!-- Recent Controls -->
+                <section class="recent-controls">
+                    <h3>📋 Últimos Controles</h3>
+                    <div id="recentControlsList" class="controls-list">
+                        <!-- Los controles recientes se llenarán dinámicamente -->
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <!-- New Patient Modal -->
+    <div id="newPatientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>👤 Nuevo Paciente</h3>
+                <span class="close" id="closeNewPatientModal">&times;</span>
+            </div>
+            <form id="newPatientForm">
+                <div class="form-group">
+                    <label for="patientNameInput">Nombre Completo</label>
+                    <input type="text" id="patientNameInput" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="patientAge">Edad</label>
+                        <input type="number" id="patientAgeInput" min="1" max="120" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="patientHeight">Estatura (cm)</label>
+                        <input type="number" id="patientHeightInput" min="100" max="250" step="0.1" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="patientGender">Género</label>
+                    <select id="patientGenderInput" required>
+                        <option value="">Seleccionar</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="femenino">Femenino</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="cancelNewPatient" class="btn btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Crear Paciente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>Made with <span class="heart">♥</span> by Jean Benitez</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

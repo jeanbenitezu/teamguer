@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Control - Estadistica TEAMGUER</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="assets/logo.png" type="image/svg+xml">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="brand">
+                <a href="index.html" class="logo-link">
+                    <img src="assets/logo.png" alt="TEAMGUER" class="logo">
+                </a>
+                <div>
+                    <h1>Nuevo Control</h1>
+                    <div class="app-subtitle">Estadistica TEAMGUER</div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button type="button" onclick="newControlForm.redirectToDashboard()" class="btn btn-secondary">← Volver al Dashboard</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Form -->
+    <main class="main-form">
+        <div class="container">
+            <div class="form-container">
+                <!-- Patient Info -->
+                <section class="patient-info-section">
+                    <div class="patient-summary">
+                        <h3 id="selectedPatientName">Seleccionar Paciente</h3>
+                        <select id="patientSelectControl" class="patient-select-large" required>
+                            <option value="">Seleccionar Paciente</option>
+                        </select>
+                    </div>
+                </section>
+
+                <!-- Control Form -->
+                <section class="control-form-section">
+                    <form id="newControlForm" class="control-form">
+                        <div class="form-header">
+                            <h3>📊 Datos del Control</h3>
+                            <div class="form-date">
+                                <label for="controlDate">Fecha del Control</label>
+                                <input type="date" id="controlDate" required>
+                            </div>
+                        </div>
+
+                        <div class="measurements-grid">
+                            <div class="measurement-group">
+                                <label for="weight">
+                                    <span class="icon">⚖️</span>
+                                    <span class="label">Peso (kg)</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="weight" 
+                                    step="0.1" 
+                                    min="20" 
+                                    max="300" 
+                                    placeholder="75.5" 
+                                    required
+                                >
+                                <div class="input-help">Peso corporal total</div>
+                            </div>
+
+                            <div class="measurement-group">
+                                <label for="fatPercentage">
+                                    <span class="icon">🔥</span>
+                                    <span class="label">% Grasa Corporal</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="fatPercentage" 
+                                    step="0.1" 
+                                    min="3" 
+                                    max="60" 
+                                    placeholder="18.5" 
+                                    required
+                                >
+                                <div class="input-help">Porcentaje de grasa corporal</div>
+                            </div>
+
+                            <div class="measurement-group">
+                                <label for="musclePercentage">
+                                    <span class="icon">💪</span>
+                                    <span class="label">% Masa Muscular</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="musclePercentage" 
+                                    step="0.1" 
+                                    min="20" 
+                                    max="70" 
+                                    placeholder="42.8" 
+                                    required
+                                >
+                                <div class="input-help">Porcentaje de masa muscular</div>
+                            </div>
+
+                            <div class="measurement-group">
+                                <label for="waterPercentage">
+                                    <span class="icon">💧</span>
+                                    <span class="label">% Agua Corporal</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="waterPercentage" 
+                                    step="0.1" 
+                                    min="30" 
+                                    max="80" 
+                                    placeholder="58.2" 
+                                    required
+                                >
+                                <div class="input-help">Porcentaje de agua en el cuerpo</div>
+                            </div>
+
+                            <div class="measurement-group">
+                                <label for="boneMass">
+                                    <span class="icon">🦴</span>
+                                    <span class="label">Masa Ósea (kg)</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="boneMass" 
+                                    step="0.1" 
+                                    min="1" 
+                                    max="10" 
+                                    placeholder="2.8"
+                                >
+                                <div class="input-help">Masa ósea en kilogramos</div>
+                            </div>
+
+                            <div class="measurement-group">
+                                <label for="basalMetabolism">
+                                    <span class="icon">🔥</span>
+                                    <span class="label">Metabolismo Basal (kcal)</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="basalMetabolism" 
+                                    min="800" 
+                                    max="3000" 
+                                    placeholder="1650"
+                                >
+                                <div class="input-help">Calorías necesarias en reposo</div>
+                            </div>
+
+                            <div class="measurement-group">
+                                <label for="metabolicAge">
+                                    <span class="icon">⏳</span>
+                                    <span class="label">Edad Metabólica (años)</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="metabolicAge" 
+                                    min="12" 
+                                    max="99" 
+                                    placeholder="28"
+                                >
+                                <div class="input-help">Edad metabólica calculada</div>
+                            </div>
+                        </div>
+
+                        <!-- Medidas Corporales -->
+                        <div class="section-divider">
+                            <h4>📏 Medidas Corporales</h4>
+                        </div>
+
+                        <div class="measurements-grid">
+                            <div class="measurement-group">
+                                <label for="waistCircumference">
+                                    <span class="icon">⭕</span>
+                                    <span class="label">Circunferencia Cintura (cm)</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="waistCircumference" 
+                                    step="0.5" 
+                                    min="50" 
+                                    max="150" 
+                                    placeholder="75.5"
+                                >
+                                <div class="input-help">Medida en la parte más estrecha</div>
+                            </div>
+
+                            <div class="measurement-group">
+                                <label for="hipCircumference">
+                                    <span class="icon">⭕</span>
+                                    <span class="label">Circunferencia Cadera (cm)</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="hipCircumference" 
+                                    step="0.5" 
+                                    min="60" 
+                                    max="180" 
+                                    placeholder="98.0"
+                                >
+                                <div class="input-help">Medida en la parte más ancha</div>
+                            </div>
+
+                            <div class="measurement-group">
+                                <label for="armCircumference">
+                                    <span class="icon">💪</span>
+                                    <span class="label">Circunferencia Brazo (cm)</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="armCircumference" 
+                                    step="0.5" 
+                                    min="15" 
+                                    max="60" 
+                                    placeholder="28.5"
+                                >
+                                <div class="input-help">Brazo derecho, flexionado</div>
+                            </div>
+
+                            <div class="measurement-group">
+                                <label for="thighCircumference">
+                                    <span class="icon">🦵</span>
+                                    <span class="label">Circunferencia Muslo (cm)</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="thighCircumference" 
+                                    step="0.5" 
+                                    min="30" 
+                                    max="90" 
+                                    placeholder="52.0"
+                                >
+                                <div class="input-help">Parte más ancha del muslo</div>
+                            </div>
+                        </div>
+
+                        <!-- Signos Vitales -->
+                        <div class="section-divider">
+                            <h4>❤️ Signos Vitales</h4>
+                        </div>
+
+                        <div class="measurements-grid">
+                            <div class="measurement-group">
+                                <label for="systolicPressure">
+                                    <span class="icon">🩺</span>
+                                    <span class="label">Presión Sistólica (mmHg)</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="systolicPressure" 
+                                    min="80" 
+                                    max="200" 
+                                    placeholder="120"
+                                >
+                                <div class="input-help">Presión arterial sistólica</div>
+                            </div>
+
+                            <div class="measurement-group">
+                                <label for="diastolicPressure">
+                                    <span class="icon">🩺</span>
+                                    <span class="label">Presión Diastólica (mmHg)</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="diastolicPressure" 
+                                    min="40" 
+                                    max="120" 
+                                    placeholder="80"
+                                >
+                                <div class="input-help">Presión arterial diastólica</div>
+                            </div>
+
+                            <div class="measurement-group">
+                                <label for="restingHeartRate">
+                                    <span class="icon">💓</span>
+                                    <span class="label">FC Reposo (bpm)</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="restingHeartRate" 
+                                    min="40" 
+                                    max="120" 
+                                    placeholder="65"
+                                >
+                                <div class="input-help">Frecuencia cardíaca en reposo</div>
+                            </div>
+
+                            <div class="measurement-group">
+                                <label for="visceralFat">
+                                    <span class="icon">🫄</span>
+                                    <span class="label">Grasa Visceral</span>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="visceralFat" 
+                                    min="1" 
+                                    max="30" 
+                                    placeholder="8"
+                                >
+                                <div class="input-help">Nivel de grasa visceral (1-30)</div>
+                            </div>
+                        </div>
+
+                        <!-- Calculated Values Preview -->
+                        <div class="calculated-values">
+                            <h4>📈 Valores Calculados</h4>
+                            <div class="calculated-grid">
+                                <div class="calculated-item">
+                                    <span class="label">IMC</span>
+                                    <span id="calculatedIMC" class="value">-</span>
+                                </div>
+                                <div class="calculated-item">
+                                    <span class="label">Peso Graso</span>
+                                    <span id="calculatedFatWeight" class="value">-</span>
+                                </div>
+                                <div class="calculated-item">
+                                    <span class="label">Peso Muscular</span>
+                                    <span id="calculatedMuscleWeight" class="value">-</span>
+                                </div>
+                                <div class="calculated-item">
+                                    <span class="label">Peso de Agua</span>
+                                    <span id="calculatedWaterWeight" class="value">-</span>
+                                </div>
+                                <div class="calculated-item">
+                                    <span class="label">Ratio Cintura/Cadera</span>
+                                    <span id="calculatedWHR" class="value">-</span>
+                                </div>
+                                <div class="calculated-item">
+                                    <span class="label">Presión Arterial</span>
+                                    <span id="calculatedBloodPressure" class="value">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Comparison with Previous -->
+                        <div id="comparisonSection" class="comparison-section" style="display: none;">
+                            <h4>📊 Comparación con Control Anterior</h4>
+                            <div id="comparisonGrid" class="comparison-grid">
+                                <!-- Se llena dinámicamente -->
+                            </div>
+                        </div>
+
+                        <!-- Notes Section -->
+                        <div class="notes-section">
+                            <label for="notes">
+                                <span class="icon">📝</span>
+                                <span class="label">Notas y Observaciones (Opcional)</span>
+                            </label>
+                            <textarea 
+                                id="notes" 
+                                rows="3" 
+                                placeholder="Añadir observaciones sobre el progreso, dificultades, cambios en la rutina, etc."
+                            ></textarea>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <button type="button" id="cancelControl" class="btn btn-secondary btn-large">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-large">
+                                💾 Guardar Control
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content success">
+            <div class="modal-header">
+                <h3>✅ Control Guardado</h3>
+            </div>
+            <div class="modal-body">
+                <p>El control ha sido guardado exitosamente.</p>
+                <div class="success-actions">
+                    <button id="goToDashboard" class="btn btn-primary">Ver Dashboard</button>
+                    <button id="addAnotherControl" class="btn btn-secondary">Agregar Otro Control</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>Made with <span class="heart">♥</span> by Jean Benitez</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/new-control.js"></script>
+</body>
+</html>
