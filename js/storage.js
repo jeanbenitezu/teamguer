@@ -233,45 +233,28 @@ class LocalStorage {
     // === SCORING ===
     calculateMonthlyScore(patientId) {
         const controls = this.getControlsByPatient(patientId);
-        if (controls.length < 2) {
-            return 50; // Score neutro para primer control
-        }
+        if (controls.length < 2) return 50; // Score neutro para primer control
 
         const latest = controls[0];
         const previous = controls[1];
-        let score = 50; // Score base
 
-        // Análisis de tendencias (40 puntos máximo)
-        // Grasa corporal (peso: 15 puntos) - Mejor si baja
+        // Calcular cambios
         const fatChange = latest.fatPercentage - previous.fatPercentage;
-        if (fatChange < -1) score += 15;
-        else if (fatChange < -0.5) score += 10;
-        else if (fatChange < 0) score += 5;
-        else if (fatChange > 1) score -= 10;
-        else if (fatChange > 0.5) score -= 5;
-
-        // Masa muscular (peso: 25 puntos) - Mejor si sube
         const muscleChange = latest.musclePercentage - previous.musclePercentage;
-        if (muscleChange > 1) score += 25;
-        else if (muscleChange > 0.5) score += 20;
-        else if (muscleChange > 0) score += 15;
-        else if (muscleChange < -1) score -= 20;
-        else if (muscleChange < -0.5) score -= 15;
-
-        // Agua corporal (peso: 10 puntos) - Mejor si se mantiene o sube ligeramente
-        const waterChange = latest.waterPercentage - previous.waterPercentage;
-        if (waterChange >= -0.5 && waterChange <= 1) score += 10;
-        else if (Math.abs(waterChange) <= 2) score += 5;
-        else score -= 5;
-
-
-        // tener en cuenta el IMC (peso: 5 puntos) - Mejor si se mantiene o baja ligeramente
         const imcChange = latest.imc - previous.imc;
-        if (imcChange <= 0) score += 5;
-        else if (imcChange <= 0.5) score += 2;
-        else score -= 5;
+        const waterChange = latest.waterPercentage - previous.waterPercentage;
 
-        // Limitar score entre 0 y 100
+        // Fórmula simplificada: 50 base + suma de componentes
+        const score = 50 + 
+            // Grasa (20 pts): menor es mejor, -fatChange da puntos positivos cuando baja
+            Math.max(-15, Math.min(20, -fatChange * 10)) +
+            // Músculo (25 pts): mayor es mejor, muscleChange da puntos cuando sube  
+            Math.max(-20, Math.min(25, muscleChange * 12.5)) +
+            // IMC (15 pts): menor es mejor, -imcChange da puntos cuando baja
+            Math.max(-15, Math.min(15, -imcChange * 15)) +
+            // Agua (10 pts): estable es mejor, menos cambio = más puntos
+            Math.max(-5, Math.min(10, 10 - Math.abs(waterChange) * 5));
+
         return Math.max(0, Math.min(100, Math.round(score)));
     }
 
