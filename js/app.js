@@ -25,7 +25,7 @@ class App {
 
     // Crear datos de ejemplo para demostración
     createSampleData() {
-        // Paciente basado en la planilla real
+        // Alumno basado en la planilla real
         const realPatient = {
             name: 'Ana Patricia Silva',
             age: 32,
@@ -45,16 +45,11 @@ class App {
                 musclePercentage: 36.8,
                 waterPercentage: 48.9,
                 waistCircumference: 84.0,
-                hipCircumference: 102.5,
                 armCircumference: 31.2,
                 thighCircumference: 58.5,
-                systolicPressure: 125,
-                diastolicPressure: 82,
-                restingHeartRate: 78,
                 visceralFat: 9,
-                boneMass: 2.6,
+                strongCapacity: 2.6,
                 basalMetabolism: 1540,
-                metabolicAge: 35,
                 notes: 'Control inicial - establecer línea base'
             },
             {
@@ -65,16 +60,11 @@ class App {
                 musclePercentage: 37.9,
                 waterPercentage: 50.2,
                 waistCircumference: 82.5,
-                hipCircumference: 101.8,
                 armCircumference: 31.0,
                 thighCircumference: 58.0,
-                systolicPressure: 122,
-                diastolicPressure: 80,
-                restingHeartRate: 75,
                 visceralFat: 8,
-                boneMass: 2.6,
+                strongCapacity: 2.6,
                 basalMetabolism: 1565,
-                metabolicAge: 33,
                 notes: 'Primer mes - reducción de grasa visceral'
             },
             {
@@ -85,16 +75,11 @@ class App {
                 musclePercentage: 39.1,
                 waterPercentage: 51.8,
                 waistCircumference: 81.0,
-                hipCircumference: 100.5,
                 armCircumference: 31.5,
                 thighCircumference: 57.2,
-                systolicPressure: 118,
-                diastolicPressure: 78,
-                restingHeartRate: 72,
                 visceralFat: 7,
-                boneMass: 2.7,
+                strongCapacity: 2.7,
                 basalMetabolism: 1585,
-                metabolicAge: 31,
                 notes: 'Excelente progreso - ganancia de masa muscular'
             },
             {
@@ -105,16 +90,11 @@ class App {
                 musclePercentage: 40.3,
                 waterPercentage: 52.9,
                 waistCircumference: 79.5,
-                hipCircumference: 99.8,
                 armCircumference: 32.0,
                 thighCircumference: 56.8,
-                systolicPressure: 115,
-                diastolicPressure: 76,
-                restingHeartRate: 69,
                 visceralFat: 6,
-                boneMass: 2.7,
+                strongCapacity: 2.7,
                 basalMetabolism: 1605,
-                metabolicAge: 29,
                 notes: 'Mantiene tendencia positiva en todos los indicadores'
             },
             {
@@ -125,16 +105,11 @@ class App {
                 musclePercentage: 41.2,
                 waterPercentage: 53.6,
                 waistCircumference: 78.5,
-                hipCircumference: 99.0,
                 armCircumference: 32.5,
                 thighCircumference: 56.5,
-                systolicPressure: 112,
-                diastolicPressure: 74,
-                restingHeartRate: 66,
                 visceralFat: 5,
-                boneMass: 2.8,
+                strongCapacity: 2.8,
                 basalMetabolism: 1625,
-                metabolicAge: 27,
                 notes: 'Control enero - resultados excelentes, alcanzó objetivos'
             }
         ];
@@ -143,7 +118,7 @@ class App {
             storage.saveControl(control);
         });
 
-        // Segundo paciente de ejemplo
+        // Segundo alumno de ejemplo
         const samplePatient2 = {
             name: 'Roberto Martinez',
             age: 28,
@@ -153,7 +128,7 @@ class App {
 
         const patient2 = storage.savePatient(samplePatient2);
 
-        // Controles para el segundo paciente
+        // Controles para el segundo alumno
         const sampleControls2 = [
             {
                 patientId: patient2.id,
@@ -163,16 +138,11 @@ class App {
                 musclePercentage: 42.8,
                 waterPercentage: 58.2,
                 waistCircumference: 88.5,
-                hipCircumference: 102.0,
                 armCircumference: 36.8,
                 thighCircumference: 62.5,
-                systolicPressure: 128,
-                diastolicPressure: 84,
-                restingHeartRate: 70,
                 visceralFat: 8,
-                boneMass: 3.2,
+                strongCapacity: 3.2,
                 basalMetabolism: 2050,
-                metabolicAge: 26,
                 notes: 'Control inicial - buen estado físico base'
             },
             {
@@ -183,16 +153,11 @@ class App {
                 musclePercentage: 43.5,
                 waterPercentage: 58.8,
                 waistCircumference: 87.0,
-                hipCircumference: 101.5,
                 armCircumference: 37.2,
                 thighCircumference: 62.8,
-                systolicPressure: 124,
-                diastolicPressure: 82,
-                restingHeartRate: 68,
                 visceralFat: 7,
-                boneMass: 3.2,
+                strongCapacity: 3.2,
                 basalMetabolism: 2075,
-                metabolicAge: 25,
                 notes: 'Progreso constante en definición muscular'
             },
             {
@@ -203,16 +168,11 @@ class App {
                 musclePercentage: 44.1,
                 waterPercentage: 59.2,
                 waistCircumference: 85.5,
-                hipCircumference: 101.0,
                 armCircumference: 37.8,
                 thighCircumference: 63.0,
-                systolicPressure: 120,
-                diastolicPressure: 80,
-                restingHeartRate: 65,
                 visceralFat: 6,
-                boneMass: 3.3,
+                strongCapacity: 3.3,
                 basalMetabolism: 2095,
-                metabolicAge: 24,
                 notes: 'Excelente evolución - fase de mantenimiento'
             }
         ];
@@ -221,23 +181,23 @@ class App {
             storage.saveControl(control);
         });
 
-        console.log('Datos de ejemplo creados exitosamente con pacientes realistas');
+        console.log('Datos de ejemplo creados exitosamente con alumnos realistas');
     }
 
-    // Verificar parámetros URL para preseleccionar paciente
+    // Verificar parámetros URL para preseleccionar alumno
     checkUrlParameters() {
         const urlParams = new URLSearchParams(window.location.search);
         const patientId = urlParams.get('patientId');
         
         if (patientId) {
-            // Preseleccionar el paciente del parámetro URL
+            // Preseleccionar el alumno del parámetro URL
             setTimeout(() => {
                 const patientSelect = document.getElementById('patientSelect');
                 if (patientSelect) {
                     patientSelect.value = patientId;
                     this.selectPatient(patientId);
                 }
-            }, 200); // Delay para asegurar que los pacientes estén cargados
+            }, 200); // Delay para asegurar que los alumnos estén cargados
         }
     }
 
@@ -246,7 +206,7 @@ class App {
         const newControlBtn = document.getElementById('newControlBtn');
         if (newControlBtn) {
             newControlBtn.addEventListener('click', () => {
-                // Si hay un paciente seleccionado, mantener la selección
+                // Si hay un alumno seleccionado, mantener la selección
                 if (this.currentPatientId) {
                     window.location.href = `new-control.html?patientId=${this.currentPatientId}`;
                 } else {
@@ -276,7 +236,7 @@ class App {
             });
         }
 
-        // Eventos del modal de nuevo paciente
+        // Eventos del modal de nuevo alumno
         const closeNewPatientModal = document.getElementById('closeNewPatientModal');
         if (closeNewPatientModal) {
             closeNewPatientModal.addEventListener('click', () => {
@@ -317,7 +277,7 @@ class App {
         if (!select) return;
 
         // Limpiar opciones existentes (excepto la primera)
-        select.innerHTML = '<option value="">Seleccionar Paciente</option>';
+        select.innerHTML = '<option value="">Seleccionar Alumno</option>';
 
         patients.forEach(patient => {
             const option = document.createElement('option');
@@ -326,7 +286,7 @@ class App {
             select.appendChild(option);
         });
 
-        // Mostrar siempre la pantalla de bienvenida hasta que se seleccione un paciente
+        // Mostrar siempre la pantalla de bienvenida hasta que se seleccione un alumno
         this.showWelcomeScreen();
     }
 
@@ -340,7 +300,7 @@ class App {
         const patient = storage.getPatient(patientId);
         
         if (!patient) {
-            console.error('Paciente no encontrado:', patientId);
+            console.error('Alumno no encontrado:', patientId);
             return;
         }
 
@@ -437,45 +397,15 @@ class App {
         
         // IMC
         if (latestControl.imc) {
+            console.log('Actualizando IMC:', latestControl.imc, 'vs anterior:', previousControl ? previousControl.imc : null);
             this.updateProgressCard('imc', '', latestControl.imc, previousControl ? previousControl.imc : null, true);
+        } else {
+            console.log('IMC no disponible en el control actual:', latestControl);
         }
 
-        // Medidas corporales
+        // Medidas musculares
         if (latestControl.waistCircumference) {
             this.updateProgressCard('waist', 'cm', latestControl.waistCircumference, previousControl ? previousControl.waistCircumference : null, true);
-        }
-
-        // Presión arterial
-        if (latestControl.systolicPressure && latestControl.diastolicPressure) {
-            const currentPressure = `${latestControl.systolicPressure}/${latestControl.diastolicPressure}`;
-            const previousPressure = (previousControl && previousControl.systolicPressure && previousControl.diastolicPressure)
-                ? `${previousControl.systolicPressure}/${previousControl.diastolicPressure}` 
-                : null;
-            
-            document.getElementById('currentPressure').textContent = currentPressure;
-            
-            if (previousPressure) {
-                document.getElementById('pressureChange').textContent = this.getPressureStatus(latestControl.systolicPressure, latestControl.diastolicPressure);
-            } else {
-                document.getElementById('pressureChange').textContent = 'Primer control';
-            }
-        }
-
-        // Frecuencia cardíaca
-        if (latestControl.restingHeartRate) {
-            this.updateProgressCard('hr', 'bpm', latestControl.restingHeartRate, previousControl ? previousControl.restingHeartRate : null, true);
-        }
-    }
-
-    getPressureStatus(systolic, diastolic) {
-        if (systolic < 120 && diastolic < 80) {
-            return 'Óptima';
-        } else if (systolic < 130 && diastolic < 85) {
-            return 'Normal';
-        } else if (systolic < 140 && diastolic < 90) {
-            return 'Normal-Alta';
-        } else {
-            return 'Alta';
         }
     }
 
@@ -483,6 +413,8 @@ class App {
         const currentEl = document.getElementById(`current${type.charAt(0).toUpperCase() + type.slice(1)}`);
         const changeEl = document.getElementById(`${type}Change`);
         const trendEl = document.getElementById(`${type}Trend`);
+
+        console.log(`updateProgressCard - type: ${type}, buscando elemento: current${type.charAt(0).toUpperCase() + type.slice(1)}`, currentEl ? 'encontrado' : 'NO ENCONTRADO');
 
         if (!currentEl) return;
 
@@ -634,20 +566,13 @@ class App {
             if (trendEl) trendEl.textContent = '📊';
         });
 
-        // Campos especiales
-        const currentPressureEl = document.getElementById('currentPressure');
-        const pressureChangeEl = document.getElementById('pressureChange');
-        
-        if (currentPressureEl) currentPressureEl.textContent = '-';
-        if (pressureChangeEl) pressureChangeEl.textContent = 'Sin datos';
-
         // Limpiar gráficas
         if (chartsManager) {
             chartsManager.destroyAllCharts();
         }
     }
 
-    // Modal de nuevo paciente
+    // Modal de nuevo alumno
     showNewPatientModal() {
         document.getElementById('newPatientModal').style.display = 'block';
         document.getElementById('patientNameInput').focus();
@@ -679,18 +604,18 @@ class App {
             const newPatient = storage.savePatient(patientData);
             this.loadPatients();
             
-            // Seleccionar el nuevo paciente
+            // Seleccionar el nuevo alumno
             document.getElementById('patientSelect').value = newPatient.id;
             this.selectPatient(newPatient.id);
             
             this.hideNewPatientModal();
             
             // Mostrar mensaje de éxito
-            this.showSuccessMessage('Paciente creado exitosamente');
+            this.showSuccessMessage('Alumno creado exitosamente');
             
         } catch (error) {
-            console.error('Error al crear paciente:', error);
-            alert('Error al crear el paciente. Por favor, inténtalo de nuevo.');
+            console.error('Error al crear alumno:', error);
+            alert('Error al crear el alumno. Por favor, inténtalo de nuevo.');
         }
     }
 

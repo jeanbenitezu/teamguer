@@ -33,9 +33,9 @@
                 <!-- Patient Info -->
                 <section class="patient-info-section">
                     <div class="patient-summary">
-                        <h3 id="selectedPatientName">Seleccionar Paciente</h3>
+                        <h3 id="selectedPatientName">Seleccionar Alumno</h3>
                         <select id="patientSelectControl" class="patient-select-large" required>
-                            <option value="">Seleccionar Paciente</option>
+                            <option value="">Seleccionar Alumno</option>
                         </select>
                     </div>
                 </section>
@@ -121,25 +121,24 @@
                             </div>
 
                             <div class="measurement-group">
-                                <label for="boneMass">
-                                    <span class="icon">🦴</span>
-                                    <span class="label">Masa Ósea (kg)</span>
+                                <label for="visceralFat">
+                                    <span class="icon">🫄</span>
+                                    <span class="label">Grasa Visceral</span>
                                 </label>
                                 <input 
                                     type="number" 
-                                    id="boneMass" 
-                                    step="0.1" 
+                                    id="visceralFat" 
                                     min="1" 
-                                    max="10" 
-                                    placeholder="2.8"
+                                    max="30" 
+                                    placeholder="8"
                                 >
-                                <div class="input-help">Masa ósea en kilogramos</div>
+                                <div class="input-help">Nivel de grasa visceral (1-30)</div>
                             </div>
 
                             <div class="measurement-group">
                                 <label for="basalMetabolism">
                                     <span class="icon">🔥</span>
-                                    <span class="label">Metabolismo Basal (kcal)</span>
+                                    <span class="label">Calorias (kcal)</span>
                                 </label>
                                 <input 
                                     type="number" 
@@ -152,24 +151,25 @@
                             </div>
 
                             <div class="measurement-group">
-                                <label for="metabolicAge">
-                                    <span class="icon">⏳</span>
-                                    <span class="label">Edad Metabólica (años)</span>
+                                <label for="strongCapacity">
+                                    <span class="icon">🏋️</span>
+                                    <span class="label">Capacidad de fuerza (kg)</span>
                                 </label>
                                 <input 
                                     type="number" 
-                                    id="metabolicAge" 
-                                    min="12" 
-                                    max="99" 
-                                    placeholder="28"
+                                    id="strongCapacity" 
+                                    step="0.1" 
+                                    min="1" 
+                                    max="10" 
+                                    placeholder="2.8"
                                 >
-                                <div class="input-help">Edad metabólica calculada</div>
+                                <div class="input-help">Capacidad de fuerza (con el dinamómetro) en kilogramos</div>
                             </div>
                         </div>
 
-                        <!-- Medidas Corporales -->
+                        <!-- Medidas Musculares -->
                         <div class="section-divider">
-                            <h4>📏 Medidas Corporales</h4>
+                            <h4>📏 Medidas Musculares</h4>
                         </div>
 
                         <div class="measurements-grid">
@@ -190,19 +190,19 @@
                             </div>
 
                             <div class="measurement-group">
-                                <label for="hipCircumference">
-                                    <span class="icon">⭕</span>
-                                    <span class="label">Circunferencia Cadera (cm)</span>
+                                <label for="chestCircumference">
+                                    <span class="icon">🫀</span>
+                                    <span class="label">Circunferencia Dorsal Ancho / Pectoral (cm)</span>
                                 </label>
                                 <input 
                                     type="number" 
-                                    id="hipCircumference" 
+                                    id="chestCircumference" 
                                     step="0.5" 
-                                    min="60" 
-                                    max="180" 
-                                    placeholder="98.0"
+                                    min="15" 
+                                    max="60" 
+                                    placeholder="28.5"
                                 >
-                                <div class="input-help">Medida en la parte más ancha</div>
+                                <div class="input-help">Dorsal ancho / pectoral</div>
                             </div>
 
                             <div class="measurement-group">
@@ -223,7 +223,7 @@
 
                             <div class="measurement-group">
                                 <label for="thighCircumference">
-                                    <span class="icon">🦵</span>
+                                    <span class="icon">🍗</span>
                                     <span class="label">Circunferencia Muslo (cm)</span>
                                 </label>
                                 <input 
@@ -236,72 +236,21 @@
                                 >
                                 <div class="input-help">Parte más ancha del muslo</div>
                             </div>
-                        </div>
 
-                        <!-- Signos Vitales -->
-                        <div class="section-divider">
-                            <h4>❤️ Signos Vitales</h4>
-                        </div>
-
-                        <div class="measurements-grid">
                             <div class="measurement-group">
-                                <label for="systolicPressure">
-                                    <span class="icon">🩺</span>
-                                    <span class="label">Presión Sistólica (mmHg)</span>
+                                <label for="calfCircumference">
+                                    <span class="icon">🦵</span>
+                                    <span class="label">Circunferencia Gemelo (cm)</span>
                                 </label>
                                 <input 
                                     type="number" 
-                                    id="systolicPressure" 
-                                    min="80" 
-                                    max="200" 
-                                    placeholder="120"
+                                    id="calfCircumference" 
+                                    step="0.5" 
+                                    min="30" 
+                                    max="90" 
+                                    placeholder="52.0"
                                 >
-                                <div class="input-help">Presión arterial sistólica</div>
-                            </div>
-
-                            <div class="measurement-group">
-                                <label for="diastolicPressure">
-                                    <span class="icon">🩺</span>
-                                    <span class="label">Presión Diastólica (mmHg)</span>
-                                </label>
-                                <input 
-                                    type="number" 
-                                    id="diastolicPressure" 
-                                    min="40" 
-                                    max="120" 
-                                    placeholder="80"
-                                >
-                                <div class="input-help">Presión arterial diastólica</div>
-                            </div>
-
-                            <div class="measurement-group">
-                                <label for="restingHeartRate">
-                                    <span class="icon">💓</span>
-                                    <span class="label">FC Reposo (bpm)</span>
-                                </label>
-                                <input 
-                                    type="number" 
-                                    id="restingHeartRate" 
-                                    min="40" 
-                                    max="120" 
-                                    placeholder="65"
-                                >
-                                <div class="input-help">Frecuencia cardíaca en reposo</div>
-                            </div>
-
-                            <div class="measurement-group">
-                                <label for="visceralFat">
-                                    <span class="icon">🫄</span>
-                                    <span class="label">Grasa Visceral</span>
-                                </label>
-                                <input 
-                                    type="number" 
-                                    id="visceralFat" 
-                                    min="1" 
-                                    max="30" 
-                                    placeholder="8"
-                                >
-                                <div class="input-help">Nivel de grasa visceral (1-30)</div>
+                                <div class="input-help">Parte más ancha del gemelo</div>
                             </div>
                         </div>
 
@@ -324,14 +273,6 @@
                                 <div class="calculated-item">
                                     <span class="label">Peso de Agua</span>
                                     <span id="calculatedWaterWeight" class="value">-</span>
-                                </div>
-                                <div class="calculated-item">
-                                    <span class="label">Ratio Cintura/Cadera</span>
-                                    <span id="calculatedWHR" class="value">-</span>
-                                </div>
-                                <div class="calculated-item">
-                                    <span class="label">Presión Arterial</span>
-                                    <span id="calculatedBloodPressure" class="value">-</span>
                                 </div>
                             </div>
                         </div>

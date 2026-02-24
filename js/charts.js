@@ -14,8 +14,6 @@ class ChartsManager {
             waterPercentage: '#06B6D4',   // Cyan
             imc: '#8B5CF6',         // Púrpura
             waist: '#F59E0B',       // Amarillo
-            pressure: '#EC4899',    // Rosa
-            heartRate: '#14B8A6'    // Teal
         };
     }
 

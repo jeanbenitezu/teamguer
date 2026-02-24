@@ -716,12 +716,12 @@ main {
     gap: var(--spacing-lg);
 }
 
-/* === INFORMACIÓN DEL PACIENTE === */
+/* === INFORMACIÓN DEL ALUMNO === */
 .patient-info {
     margin-bottom: var(--spacing-md);
 }
 
-/* Barra sticky del paciente */
+/* Barra sticky del alumno */
 .patient-sticky-info {
     position: sticky;
     top: 72px; /* Debajo del header compacto */
@@ -1150,7 +1150,7 @@ main {
 }
 
 .form-container {
-    max-width: 800px;
+    max-width: 1080px;
     margin: 0 auto;
     position: relative;
     z-index: 1;

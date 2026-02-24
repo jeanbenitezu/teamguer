@@ -12,25 +12,25 @@ class NewControlForm {
         this.checkUrlParameters();
     }
 
-    // Verificar parámetros URL para preseleccionar paciente
+    // Verificar parámetros URL para preseleccionar alumno
     checkUrlParameters() {
         const urlParams = new URLSearchParams(window.location.search);
         const patientId = urlParams.get('patientId');
         
         if (patientId) {
-            // Preseleccionar el paciente del parámetro URL
+            // Preseleccionar el alumno del parámetro URL
             setTimeout(() => {
                 const patientSelect = document.getElementById('patientSelectControl');
                 if (patientSelect) {
                     patientSelect.value = patientId;
                     this.selectPatient(patientId);
                 }
-            }, 100); // Pequeño delay para asegurar que los pacientes estén cargados
+            }, 100); // Pequeño delay para asegurar que los alumnos estén cargados
         }
     }
 
     bindEvents() {
-        // Selección de paciente
+        // Selección de alumno
         const patientSelectControl = document.getElementById('patientSelectControl');
         if (patientSelectControl) {
             patientSelectControl.addEventListener('change', (e) => {
@@ -49,7 +49,7 @@ class NewControlForm {
 
         // Campos de medición para cálculos automáticos
         ['weight', 'fatPercentage', 'musclePercentage', 'waterPercentage', 
-         'waistCircumference', 'hipCircumference', 'systolicPressure', 'diastolicPressure'].forEach(field => {
+         'waistCircumference'].forEach(field => {
             const fieldElement = document.getElementById(field);
             if (fieldElement) {
                 fieldElement.addEventListener('input', () => {
@@ -103,7 +103,7 @@ class NewControlForm {
         
         if (!select) return;
 
-        select.innerHTML = '<option value="">Seleccionar Paciente</option>';
+        select.innerHTML = '<option value="">Seleccionar Alumno</option>';
 
         patients.forEach(patient => {
             const option = document.createElement('option');
@@ -117,7 +117,7 @@ class NewControlForm {
         this.selectedPatientId = patientId;
         
         if (!patientId) {
-            document.getElementById('selectedPatientName').textContent = 'Seleccionar Paciente';
+            document.getElementById('selectedPatientName').textContent = 'Seleccionar Alumno';
             this.hideComparison();
             this.updateUrlParameter();
             return;
@@ -174,27 +174,6 @@ class NewControlForm {
             document.getElementById('calculatedFatWeight').textContent = '-';
             document.getElementById('calculatedMuscleWeight').textContent = '-';
             document.getElementById('calculatedWaterWeight').textContent = '-';
-        }
-
-        // Calcular ratio cintura/cadera
-        const waist = parseFloat(document.getElementById('waistCircumference').value) || 0;
-        const hip = parseFloat(document.getElementById('hipCircumference').value) || 0;
-        
-        if (waist > 0 && hip > 0) {
-            const whr = (waist / hip).toFixed(2);
-            document.getElementById('calculatedWHR').textContent = whr;
-        } else {
-            document.getElementById('calculatedWHR').textContent = '-';
-        }
-
-        // Mostrar presión arterial
-        const systolic = parseInt(document.getElementById('systolicPressure').value) || 0;
-        const diastolic = parseInt(document.getElementById('diastolicPressure').value) || 0;
-        
-        if (systolic > 0 && diastolic > 0) {
-            document.getElementById('calculatedBloodPressure').textContent = `${systolic}/${diastolic}`;
-        } else {
-            document.getElementById('calculatedBloodPressure').textContent = '-';
         }
     }
 
@@ -311,9 +290,9 @@ class NewControlForm {
         const requiredFields = ['weight', 'fatPercentage', 'musclePercentage', 'waterPercentage'];
         const errors = [];
 
-        // Validar que hay un paciente seleccionado
+        // Validar que hay un alumno seleccionado
         if (!this.selectedPatientId) {
-            errors.push('Debe seleccionar un paciente');
+            errors.push('Debe seleccionar un alumno');
         }
 
         // Validar campos requeridos
@@ -378,19 +357,21 @@ class NewControlForm {
             fatPercentage: parseFloat(document.getElementById('fatPercentage').value),
             musclePercentage: parseFloat(document.getElementById('musclePercentage').value),
             waterPercentage: parseFloat(document.getElementById('waterPercentage').value),
-            boneMass: parseFloat(document.getElementById('boneMass').value) || null,
+            strongCapacity: parseFloat(document.getElementById('strongCapacity').value) || null,
             basalMetabolism: parseInt(document.getElementById('basalMetabolism').value) || null,
-            metabolicAge: parseInt(document.getElementById('metabolicAge').value) || null,
             waistCircumference: parseFloat(document.getElementById('waistCircumference').value) || null,
-            hipCircumference: parseFloat(document.getElementById('hipCircumference').value) || null,
             armCircumference: parseFloat(document.getElementById('armCircumference').value) || null,
             thighCircumference: parseFloat(document.getElementById('thighCircumference').value) || null,
-            systolicPressure: parseInt(document.getElementById('systolicPressure').value) || null,
-            diastolicPressure: parseInt(document.getElementById('diastolicPressure').value) || null,
-            restingHeartRate: parseInt(document.getElementById('restingHeartRate').value) || null,
             visceralFat: parseInt(document.getElementById('visceralFat').value) || null,
             notes: document.getElementById('notes').value.trim()
         };
+
+        // Calcular el IMC y agregarlo explícitamente
+        const patient = storage.getPatient(this.selectedPatientId);
+        if (patient && patient.height && controlData.weight > 0) {
+            const heightInMeters = patient.height / 100;
+            controlData.imc = parseFloat((controlData.weight / (heightInMeters * heightInMeters)).toFixed(1));
+        }
 
         try {
             // Guardar el control
@@ -436,7 +417,7 @@ class NewControlForm {
         window.history.replaceState({}, '', url);
     }
 
-    // Redirigir al dashboard manteniendo la selección del paciente
+    // Redirigir al dashboard manteniendo la selección del alumno
     redirectToDashboard() {
         if (this.selectedPatientId) {
             window.location.href = `index.html?patientId=${this.selectedPatientId}`;

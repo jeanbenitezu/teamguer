@@ -24,13 +24,13 @@ class LocalStorage {
         }
     }
 
-    // === PACIENTES ===
+    // === ALUMNOS ===
     getPatients() {
         try {
             const patients = localStorage.getItem(this.PATIENTS_KEY);
             return patients ? JSON.parse(patients) : [];
         } catch (error) {
-            console.error('Error al obtener pacientes:', error);
+            console.error('Error al obtener alumnos:', error);
             return [];
         }
     }
@@ -53,8 +53,8 @@ class LocalStorage {
             localStorage.setItem(this.PATIENTS_KEY, JSON.stringify(patients));
             return newPatient;
         } catch (error) {
-            console.error('Error al guardar paciente:', error);
-            throw new Error('No se pudo guardar el paciente');
+            console.error('Error al guardar alumno:', error);
+            throw new Error('No se pudo guardar el alumno');
         }
     }
 
@@ -63,7 +63,7 @@ class LocalStorage {
             const patients = this.getPatients();
             const patientIndex = patients.findIndex(p => p.id === patientId);
             if (patientIndex === -1) {
-                throw new Error('Paciente no encontrado');
+                throw new Error('Alumno no encontrado');
             }
             patients[patientIndex] = {
                 ...patients[patientIndex],
@@ -73,8 +73,8 @@ class LocalStorage {
             localStorage.setItem(this.PATIENTS_KEY, JSON.stringify(patients));
             return patients[patientIndex];
         } catch (error) {
-            console.error('Error al actualizar paciente:', error);
-            throw new Error('No se pudo actualizar el paciente');
+            console.error('Error al actualizar alumno:', error);
+            throw new Error('No se pudo actualizar el alumno');
         }
     }
 
@@ -84,12 +84,12 @@ class LocalStorage {
             const filteredPatients = patients.filter(p => p.id !== patientId);
             localStorage.setItem(this.PATIENTS_KEY, JSON.stringify(filteredPatients));
             
-            // También eliminar todos los controles del paciente
+            // También eliminar todos los controles del alumno
             this.deleteControlsByPatient(patientId);
             return true;
         } catch (error) {
-            console.error('Error al eliminar paciente:', error);
-            throw new Error('No se pudo eliminar el paciente');
+            console.error('Error al eliminar alumno:', error);
+            throw new Error('No se pudo eliminar el alumno');
         }
     }
 
@@ -130,8 +130,10 @@ class LocalStorage {
                 created: new Date().toISOString()
             };
             
-            // Calcular IMC si hay datos suficientes
-            newControl.imc = this.calculateIMC(controlData.weight, controlData.patientId);
+            // Calcular IMC si hay datos suficientes y no se ha calculado ya
+            if (!newControl.imc) {
+                newControl.imc = this.calculateIMC(controlData.weight, controlData.patientId);
+            }
             
             controls.push(newControl);
             localStorage.setItem(this.CONTROLS_KEY, JSON.stringify(controls));
@@ -181,7 +183,7 @@ class LocalStorage {
             localStorage.setItem(this.CONTROLS_KEY, JSON.stringify(filteredControls));
             return true;
         } catch (error) {
-            console.error('Error al eliminar controles del paciente:', error);
+            console.error('Error al eliminar controles del alumno:', error);
             return false;
         }
     }
@@ -248,13 +250,13 @@ class LocalStorage {
         else if (fatChange > 1) score -= 10;
         else if (fatChange > 0.5) score -= 5;
 
-        // Masa muscular (peso: 15 puntos) - Mejor si sube
+        // Masa muscular (peso: 25 puntos) - Mejor si sube
         const muscleChange = latest.musclePercentage - previous.musclePercentage;
-        if (muscleChange > 1) score += 15;
-        else if (muscleChange > 0.5) score += 10;
-        else if (muscleChange > 0) score += 5;
-        else if (muscleChange < -1) score -= 10;
-        else if (muscleChange < -0.5) score -= 5;
+        if (muscleChange > 1) score += 25;
+        else if (muscleChange > 0.5) score += 20;
+        else if (muscleChange > 0) score += 15;
+        else if (muscleChange < -1) score -= 20;
+        else if (muscleChange < -0.5) score -= 15;
 
         // Agua corporal (peso: 10 puntos) - Mejor si se mantiene o sube ligeramente
         const waterChange = latest.waterPercentage - previous.waterPercentage;
@@ -262,8 +264,12 @@ class LocalStorage {
         else if (Math.abs(waterChange) <= 2) score += 5;
         else score -= 5;
 
-        // Consistencia (10 puntos) - Bonus por hacer el control
-        score += 10;
+
+        // tener en cuenta el IMC (peso: 5 puntos) - Mejor si se mantiene o baja ligeramente
+        const imcChange = latest.imc - previous.imc;
+        if (imcChange <= 0) score += 5;
+        else if (imcChange <= 0.5) score += 2;
+        else score -= 5;
 
         // Limitar score entre 0 y 100
         return Math.max(0, Math.min(100, Math.round(score)));
