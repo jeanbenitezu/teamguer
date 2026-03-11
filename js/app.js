@@ -203,6 +203,13 @@ class App {
 
     bindEvents() {
         // Eventos del header
+        const leaderboardBtn = document.getElementById('leaderboardBtn');
+        if (leaderboardBtn) {
+            leaderboardBtn.addEventListener('click', () => {
+                this.showLeaderboard();
+            });
+        }
+
         const newControlBtn = document.getElementById('newControlBtn');
         if (newControlBtn) {
             newControlBtn.addEventListener('click', () => {
@@ -265,6 +272,23 @@ class App {
             newPatientModal.addEventListener('click', (e) => {
                 if (e.target.classList.contains('modal')) {
                     this.hideNewPatientModal();
+                }
+            });
+        }
+
+        // Eventos del leaderboard
+        const closeLeaderboard = document.getElementById('closeLeaderboard');
+        if (closeLeaderboard) {
+            closeLeaderboard.addEventListener('click', () => {
+                this.hideLeaderboard();
+            });
+        }
+
+        const leaderboardSection = document.getElementById('leaderboardSection');
+        if (leaderboardSection) {
+            leaderboardSection.addEventListener('click', (e) => {
+                if (e.target.classList.contains('leaderboard-section')) {
+                    this.hideLeaderboard();
                 }
             });
         }
@@ -644,6 +668,114 @@ class App {
                 document.body.removeChild(messageEl);
             }, 300);
         }, 3000);
+    }
+
+    // === LEADERBOARD ===
+    showLeaderboard() {
+        const leaderboardSection = document.getElementById('leaderboardSection');
+        if (leaderboardSection) {
+            this.loadLeaderboardData();
+            leaderboardSection.classList.remove('hidden');
+        }
+    }
+
+    hideLeaderboard() {
+        const leaderboardSection = document.getElementById('leaderboardSection');
+        if (leaderboardSection) {
+            leaderboardSection.classList.add('hidden');
+        }
+    }
+
+    loadLeaderboardData() {
+        const patients = storage.getPatients();
+        const leaderboardList = document.getElementById('leaderboardList');
+        
+        if (!leaderboardList) return;
+
+        // Si no hay pacientes, mostrar mensaje vacío
+        if (patients.length === 0) {
+            leaderboardList.innerHTML = `
+                <div class="leaderboard-empty">
+                    <h3>📊 Sin datos disponibles</h3>
+                    <p>Aún no hay alumnos registrados para mostrar en el ranking.</p>
+                    <p>¡Comienza creando tu primer alumno!</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Calcular puntajes para todos los pacientes
+        const patientsWithScores = patients.map(patient => {
+            const controls = storage.getControlsByPatient(patient.id);
+            const totalControls = controls.length;
+            const monthlyScore = storage.calculateMonthlyScore(patient.id);
+            
+            return {
+                ...patient,
+                monthlyScore,
+                totalControls,
+                lastControl: totalControls > 0 ? controls[0] : null
+            };
+        });
+
+        // Filtrar solo pacientes con al menos un control y ordenar por puntaje
+        const rankedPatients = patientsWithScores
+            .filter(patient => patient.totalControls > 0)
+            .sort((a, b) => b.monthlyScore - a.monthlyScore)
+            .slice(0, 5); // Top 5
+
+        if (rankedPatients.length === 0) {
+            leaderboardList.innerHTML = `
+                <div class="leaderboard-empty">
+                    <h3>📈 Esperando controles</h3>
+                    <p>Los alumnos necesitan al menos un control para aparecer en el ranking.</p>
+                    <p>¡Agrega controles para ver el leaderboard!</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Generar HTML del leaderboard
+        const leaderboardHTML = rankedPatients.map((patient, index) => {
+            const rank = index + 1;
+            const rankClass = rank <= 3 ? `rank-${rank}` : '';
+            const lastControlDate = patient.lastControl 
+                ? new Date(patient.lastControl.date).toLocaleDateString('es-ES', {
+                    day: 'numeric',
+                    month: 'short'
+                })
+                : 'N/A';
+
+            const trendIcon = this.getScoreTrendIcon(patient.monthlyScore);
+            
+            return `
+                <div class="leaderboard-item ${rankClass}">
+                    <div class="leaderboard-rank rank-${rank}">${rank}</div>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">${patient.name}</div>
+                        <div class="leaderboard-details">
+                            <span>📅 ${lastControlDate}</span>
+                            <span>📊 ${patient.totalControls} controles</span>
+                            <span>👤 ${patient.age} años</span>
+                        </div>
+                    </div>
+                    <div class="leaderboard-score">
+                        <div class="leaderboard-score-number">${patient.monthlyScore}</div>
+                        <div class="leaderboard-score-label">pts ${trendIcon}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        leaderboardList.innerHTML = leaderboardHTML;
+    }
+
+    getScoreTrendIcon(score) {
+        if (score >= 80) return '🔥';
+        if (score >= 70) return '📈';
+        if (score >= 60) return '✨';
+        if (score >= 50) return '🎯';
+        return '💪';
     }
 }
 

@@ -22,6 +22,7 @@
                 </div>
             </div>
             <div class="header-actions">
+                <button id="leaderboardBtn" class="btn btn-accent">🏆 Top 5</button>
                 <button id="newControlBtn" class="btn btn-primary">+ Nuevo Control</button>
                 <select id="patientSelect" class="patient-select">
                     <option value="">Seleccionar Alumno</option>
@@ -213,6 +214,24 @@
                         <!-- Los controles recientes se llenarán dinámicamente -->
                     </div>
                 </section>
+            </div>
+            
+            <!-- Leaderboard Section -->
+            <div id="leaderboardSection" class="leaderboard-section hidden">
+                <div class="container">
+                    <div class="leaderboard-header">
+                        <h2>🏆 Top 5 Alumnos del Mes</h2>
+                        <button id="closeLeaderboard" class="btn btn-ghost">×</button>
+                    </div>
+                    <div class="leaderboard-content">
+                        <div id="leaderboardList" class="leaderboard-list">
+                            <!-- El leaderboard se llenará dinámicamente -->
+                        </div>
+                        <div class="leaderboard-footer">
+                            <small>🏅 Puntaje basado en mejoras en grasa, músculo, IMC y hidratación</small>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
