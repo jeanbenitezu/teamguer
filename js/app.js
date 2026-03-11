@@ -1256,7 +1256,7 @@ class App {
                 </div>
             ` : ''}
             
-            ${control.strongCapacity || control.basalMetabolism || control.visceralFat || control.metabolicAge ? `
+            ${control.strongCapacity || control.basalMetabolism || control.visceralFat ? `
                 <div class="download-additional">
                     <h3 style="color: #2D3748; margin-bottom: 20px; font-size: 20px;">📈 Datos Adicionales</h3>
                     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px;">
@@ -1276,12 +1276,6 @@ class App {
                             <div style="padding: 15px; background: #F7FAFC; border-radius: 8px;">
                                 <div style="color: #666; font-size: 14px;">Grasa Visceral</div>
                                 <div style="font-size: 18px; font-weight: bold;">${control.visceralFat}</div>
-                            </div>
-                        ` : ''}
-                        ${control.metabolicAge ? `
-                            <div style="padding: 15px; background: #F7FAFC; border-radius: 8px;">
-                                <div style="color: #666; font-size: 14px;">Edad Metabólica</div>
-                                <div style="font-size: 18px; font-weight: bold;">${control.metabolicAge} años</div>
                             </div>
                         ` : ''}
                     </div>
@@ -1320,6 +1314,341 @@ class App {
         controlView.appendChild(logoStyle);
 
         return controlView;
+    }
+
+    // === PATIENT DASHBOARD DOWNLOAD ===
+    downloadPatientDashboard(patientId) {
+        const patient = storage.getPatient(patientId);
+        if (!patient) {
+            alert('Paciente no encontrado');
+            return;
+        }
+
+        // Show download options modal for dashboard
+        this.showDashboardDownloadModal(patient);
+    }
+
+    showDashboardDownloadModal(patient) {
+        const modalHTML = `
+            <div id="dashboardDownloadModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>📥 Descargar Resumen del Alumno</h3>
+                        <button onclick="app.closeDashboardDownloadModal()" class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Selecciona el formato de descarga para el resumen de <strong>${patient.name}</strong></p>
+                        <div class="download-options">
+                            <button onclick="app.downloadDashboardAsPDF('${patient.id}')" class="btn btn-primary btn-large">
+                                📄 Descargar como PDF
+                            </button>
+                            <button onclick="app.downloadDashboardAsImage('${patient.id}')" class="btn btn-secondary btn-large">
+                                🖼️ Descargar como Imagen
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Remove existing modal if any
+        const existingModal = document.getElementById('dashboardDownloadModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        document.getElementById('dashboardDownloadModal').style.display = 'block';
+    }
+
+    closeDashboardDownloadModal() {
+        const modal = document.getElementById('dashboardDownloadModal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+
+    async downloadDashboardAsPDF(patientId) {
+        const patient = storage.getPatient(patientId);
+        
+        try {
+            // Create the dashboard view element
+            const dashboardView = this.createDashboardView(patient);
+            document.body.appendChild(dashboardView);
+
+            // Capture the element as canvas
+            const canvas = await html2canvas(dashboardView, {
+                scale: 1.5,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                width: 900,
+                height: dashboardView.scrollHeight
+            });
+
+            // Create PDF
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            
+            const imgData = canvas.toDataURL('image/png');
+            const imgWidth = 190;
+            const pageHeight = 280;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+
+            let position = 10;
+
+            pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight + 10;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            // Generate filename
+            const date = new Date().toISOString().split('T')[0];
+            const filename = `resumen_${patient.name.replace(/\s+/g, '_')}_${date}.pdf`;
+            
+            pdf.save(filename);
+            
+            // Clean up
+            document.body.removeChild(dashboardView);
+            this.closeDashboardDownloadModal();
+            
+        } catch (error) {
+            console.error('Error generating dashboard PDF:', error);
+            alert('Error al generar el PDF. Por favor, inténtalo de nuevo.');
+        }
+    }
+
+    async downloadDashboardAsImage(patientId) {
+        const patient = storage.getPatient(patientId);
+        
+        try {
+            // Create the dashboard view element
+            const dashboardView = this.createDashboardView(patient);
+            document.body.appendChild(dashboardView);
+
+            // Capture the element as canvas
+            const canvas = await html2canvas(dashboardView, {
+                scale: 1.5,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                width: 900,
+                height: dashboardView.scrollHeight
+            });
+
+            // Create download link
+            const link = document.createElement('a');
+            const date = new Date().toISOString().split('T')[0];
+            const filename = `resumen_${patient.name.replace(/\s+/g, '_')}_${date}.png`;
+            
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            // Clean up
+            document.body.removeChild(dashboardView);
+            this.closeDashboardDownloadModal();
+            
+        } catch (error) {
+            console.error('Error generating dashboard image:', error);
+            alert('Error al generar la imagen. Por favor, inténtalo de nuevo.');
+        }
+    }
+
+    createDashboardView(patient) {
+        const controls = storage.getControlsByPatient(patient.id);
+        const monthlyScore = storage.calculateMonthlyScore(patient.id);
+        const ranking = this.getPatientRanking(patient.id);
+        
+        // Get current values
+        const latestControl = controls.length > 0 ? controls[0] : null;
+        const previousControl = controls.length > 1 ? controls[1] : null;
+        
+        const dashboardView = document.createElement('div');
+        dashboardView.className = 'dashboard-download-view';
+        dashboardView.style.cssText = `
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            width: 900px;
+            padding: 30px;
+            background: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #2D3748;
+            line-height: 1.6;
+        `;
+
+        const currentDate = new Date().toLocaleDateString('es-ES', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        dashboardView.innerHTML = `
+            <div class="dashboard-header" style="margin-bottom: 40px;">
+                <div class="dashboard-logo" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center;">
+                        <img src="assets/logo.png" alt="TEAMGUER" style="width: 60px; height: 60px; object-fit: contain; margin-right: 15px;">
+                        <div>
+                            <h1 style="margin: 0; color: #E53E3E; font-size: 28px; font-weight: bold;">TEAMGUER</h1>
+                            <p style="margin: 0; color: #666; font-size: 14px;">Resumen del Alumno</p>
+                        </div>
+                    </div>
+                    <div style="text-align: right; color: #666; font-size: 14px;">
+                        <p style="margin: 0;">Generado: ${currentDate}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <hr style="margin: 30px 0; border: none; height: 2px; background: #E53E3E;">
+            
+            <!-- Patient Info -->
+            <div class="dashboard-patient-info" style="margin-bottom: 40px;">
+                <h2 style="color: #E53E3E; margin-bottom: 20px; font-size: 24px;">📊 Resumen de ${patient.name}</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <div style="padding: 20px; background: #F7FAFC; border-radius: 12px; border-left: 4px solid #E53E3E;">
+                        <div style="color: #666; font-size: 14px; margin-bottom: 5px;">Información Personal</div>
+                        <div style="font-size: 16px; font-weight: bold;">👤 ${patient.age} años</div>
+                        <div style="font-size: 16px; font-weight: bold;">📏 ${patient.height} cm</div>
+                        <div style="font-size: 16px; font-weight: bold;">📅 ${controls.length} controles</div>
+                    </div>
+                    <div style="padding: 20px; background: #C6F6D5; border-radius: 12px; text-align: center;">
+                        <div style="color: #666; font-size: 14px; margin-bottom: 5px;">Puntaje del Mes</div>
+                        <div style="font-size: 36px; font-weight: bold; color: #38A169;">🏆 ${monthlyScore}/100</div>
+                        ${ranking && ranking.isInTop5 ? `<div style="color: #38A169; font-weight: bold; margin-top: 5px;">#${ranking.rank} en el ranking</div>` : ''}
+                    </div>
+                </div>
+            </div>
+            
+            ${latestControl ? `
+                <!-- Current Measurements -->
+                <div class="dashboard-measurements" style="margin-bottom: 40px;">
+                    <h3 style="color: #2D3748; margin-bottom: 20px; font-size: 20px;">📏 Medidas Actuales</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                        <div style="padding: 20px; background: #F7FAFC; border-radius: 12px; text-align: center;">
+                            <div style="color: #666; font-size: 14px;">Peso</div>
+                            <div style="font-size: 28px; font-weight: bold; color: #2D3748;">⚖️ ${latestControl.weight} kg</div>
+                        </div>
+                        <div style="padding: 20px; background: #FED7D7; border-radius: 12px; text-align: center;">
+                            <div style="color: #666; font-size: 14px;">% Grasa</div>
+                            <div style="font-size: 28px; font-weight: bold; color: #E53E3E;">🔥 ${latestControl.fatPercentage}%</div>
+                        </div>
+                        <div style="padding: 20px; background: #C6F6D5; border-radius: 12px; text-align: center;">
+                            <div style="color: #666; font-size: 14px;">% Músculo</div>
+                            <div style="font-size: 28px; font-weight: bold; color: #38A169;">💪 ${latestControl.musclePercentage}%</div>
+                        </div>
+                        <div style="padding: 20px; background: #BEE3F8; border-radius: 12px; text-align: center;">
+                            <div style="color: #666; font-size: 14px;">% Agua</div>
+                            <div style="font-size: 28px; font-weight: bold; color: #3182CE;">💧 ${latestControl.waterPercentage}%</div>
+                        </div>
+                        ${latestControl.imc ? `
+                            <div style="padding: 20px; background: #FAF5FF; border-radius: 12px; text-align: center;">
+                                <div style="color: #666; font-size: 14px;">IMC</div>
+                                <div style="font-size: 28px; font-weight: bold; color: #805AD5;">📈 ${latestControl.imc}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                ${previousControl ? `
+                    <!-- Progress Comparison -->
+                    <div class="dashboard-progress" style="margin-bottom: 40px;">
+                        <h3 style="color: #2D3748; margin-bottom: 20px; font-size: 20px;">📈 Progreso vs Control Anterior</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            ${this.createProgressItem('Peso', latestControl.weight, previousControl.weight, 'kg', false)}
+                            ${this.createProgressItem('% Grasa', latestControl.fatPercentage, previousControl.fatPercentage, '%', true)}
+                            ${this.createProgressItem('% Músculo', latestControl.musclePercentage, previousControl.musclePercentage, '%', false)}
+                            ${this.createProgressItem('% Agua', latestControl.waterPercentage, previousControl.waterPercentage, '%', false)}
+                        </div>
+                    </div>
+                ` : ''}
+                
+                ${latestControl.waistCircumference || latestControl.armCircumference || latestControl.thighCircumference ? `
+                    <!-- Circumferences -->
+                    <div class="dashboard-circumferences" style="margin-bottom: 40px;">
+                        <h3 style="color: #2D3748; margin-bottom: 20px; font-size: 20px;">📐 Circunferencias</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                            ${latestControl.waistCircumference ? `
+                                <div style="padding: 15px; background: #F7FAFC; border-radius: 8px; text-align: center;">
+                                    <div style="color: #666; font-size: 14px;">Cintura</div>
+                                    <div style="font-size: 20px; font-weight: bold;">${latestControl.waistCircumference} cm</div>
+                                </div>
+                            ` : ''}
+                            ${latestControl.armCircumference ? `
+                                <div style="padding: 15px; background: #F7FAFC; border-radius: 8px; text-align: center;">
+                                    <div style="color: #666; font-size: 14px;">Brazo</div>
+                                    <div style="font-size: 20px; font-weight: bold;">${latestControl.armCircumference} cm</div>
+                                </div>
+                            ` : ''}
+                            ${latestControl.thighCircumference ? `
+                                <div style="padding: 15px; background: #F7FAFC; border-radius: 8px; text-align: center;">
+                                    <div style="color: #666; font-size: 14px;">Muslo</div>
+                                    <div style="font-size: 20px; font-weight: bold;">${latestControl.thighCircumference} cm</div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                ` : ''}
+            ` : `
+                <div style="text-align: center; padding: 40px; background: #FFF5F5; border-radius: 12px; color: #E53E3E;">
+                    <h3>Sin controles registrados</h3>
+                    <p>Este alumno aún no tiene controles registrados.</p>
+                </div>
+            `}
+            
+            <!-- Recent Controls Summary -->
+            ${controls.length > 0 ? `
+                <div class="dashboard-controls" style="margin-bottom: 40px;">
+                    <h3 style="color: #2D3748; margin-bottom: 20px; font-size: 20px;">📋 Controles</h3>
+                    ${controls.map(control => `
+                        <div style="padding: 15px; background: #F7FAFC; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #E53E3E;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <div style="font-weight: bold; color: #2D3748;">${new Date(control.date).toLocaleDateString('es-ES')}</div>
+                                <div style="color: #666; font-size: 14px;">${control.weight} kg</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; font-size: 14px;">
+                                <div>Grasa: ${control.fatPercentage}%</div>
+                                <div>Músculo: ${control.musclePercentage}%</div>
+                                <div>Agua: ${control.waterPercentage}%</div>
+                                ${control.imc ? `<div>IMC: ${control.imc}</div>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+            
+            <!-- Footer -->
+            <div class="dashboard-footer" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #E2E8F0; text-align: center; color: #666; font-size: 12px;">
+                <p><strong>TEAMGUER - Sistema de Control Corporal</strong></p>
+                <p>Made with ♥ by Jean Benitez</p>
+            </div>
+        `;
+
+        return dashboardView;
+    }
+
+    createProgressItem(label, current, previous, unit, isLowerBetter = false) {
+        const difference = current - previous;
+        const isPositive = isLowerBetter ? difference < 0 : difference > 0;
+        const arrow = isPositive ? '↗️' : (difference < 0 ? '↘️' : '→');
+        const color = isPositive ? '#38A169' : (difference < 0 ? '#E53E3E' : '#666');
+        const sign = difference > 0 ? '+' : '';
+        
+        return `
+            <div style="padding: 15px; background: #F7FAFC; border-radius: 8px; text-align: center;">
+                <div style="color: #666; font-size: 14px; margin-bottom: 5px;">${label}</div>
+                <div style="font-size: 18px; font-weight: bold; color: #2D3748; margin-bottom: 5px;">${current}${unit}</div>
+                <div style="font-size: 12px; color: ${color}; font-weight: bold;">
+                    ${arrow} ${sign}${difference.toFixed(1)}${unit}
+                </div>
+            </div>
+        `;
     }
 
 
