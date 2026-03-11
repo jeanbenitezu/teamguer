@@ -660,7 +660,7 @@ main {
 /* === PANTALLA DE BIENVENIDA ANIMADA === */
 .welcome-screen {
     position: relative;
-    height: 80vh;
+    height: 70vh;
     max-height: 900px;
     display: flex;
     flex-direction: column;
