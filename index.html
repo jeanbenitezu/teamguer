@@ -55,10 +55,65 @@
         <div class="container">
             <!-- Welcome or No Patient Selected -->
             <div id="welcomeScreen" class="welcome-screen">
-                <h2>👋 Bienvenido al Sistema de Control</h2>
-                <p>Selecciona un alumno o crea uno nuevo para comenzar</p>
-                <div class="quick-actions">
-                    <button id="quickNewPatient" class="btn btn-primary btn-large">Crear Alumno</button>
+                <!-- Animated Background Elements -->
+                <div class="welcome-bg-animation">
+                    <div class="floating-element floating-1">💪</div>
+                    <div class="floating-element floating-2">🏆</div>
+                    <div class="floating-element floating-3">📊</div>
+                    <div class="floating-element floating-4">⚡</div>
+                    <div class="floating-element floating-5">🎯</div>
+                    <div class="floating-element floating-6">🔥</div>
+                </div>
+                
+                <!-- Main Welcome Content -->
+                <div class="welcome-content">
+                    <div class="welcome-description">
+                        <h2 class="welcome-subtitle slide-in-up">🚀 Sistema Profesional de Control Corporal</h2>
+                        <p class="welcome-text slide-in-up-delay">Monitorea el progreso de tus alumnos con precisión y profesionalismo.<br>
+                        <strong>Seguimiento, análisis y resultados en tiempo real.</strong></p>
+                        
+                        <div class="welcome-features slide-in-up-delay-2">
+                            <div class="feature-item">
+                                <span class="feature-icon">📈</span>
+                                <span>Evolución detallada</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">🎯</span>
+                                <span>Objetivos claros</span>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">📊</span>
+                                <span>Reportes profesionales</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="welcome-actions slide-in-up-delay-3">
+                        <button id="quickNewPatient" class="btn btn-primary btn-hero pulse-animation">
+                            <span class="btn-icon">👤</span>
+                            Crear Nuevo Alumno
+                            <span class="btn-arrow">→</span>
+                        </button>
+                        <div class="action-hint">
+                            <span>💡 O selecciona un alumno existente arriba</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Animated Stats -->
+                <div class="welcome-stats">
+                    <div class="stat-counter" data-target="100">
+                        <span class="counter-number">0</span>
+                        <span class="counter-label">% Precisión</span>
+                    </div>
+                    <div class="stat-counter" data-target="24">
+                        <span class="counter-number">0</span>
+                        <span class="counter-label">Métricas</span>
+                    </div>
+                    <div class="stat-counter" data-target="365">
+                        <span class="counter-number">0</span>
+                        <span class="counter-label">Días/Año</span>
+                    </div>
                 </div>
             </div>
 

@@ -342,6 +342,40 @@ class App {
         
         // Limpiar información del ranking cuando no hay alumno seleccionado
         this.clearRankingInfo();
+        
+        // Iniciar animaciones de la pantalla de bienvenida
+        setTimeout(() => {
+            this.animateWelcomeCounters();
+        }, 2500); // Delay para que las animaciones de entrada terminen
+    }
+    
+    // Animar contadores de la pantalla de bienvenida
+    animateWelcomeCounters() {
+        const counters = document.querySelectorAll('.stat-counter');
+        
+        counters.forEach(counter => {
+            const target = parseInt(counter.getAttribute('data-target'));
+            const numberElement = counter.querySelector('.counter-number');
+            let current = 0;
+            const increment = target / 50; // 50 pasos de animación
+            const duration = 2000; // 2 segundos
+            const stepTime = duration / 50;
+            
+            const updateCounter = () => {
+                if (current < target) {
+                    current += increment;
+                    if (current > target) current = target;
+                    numberElement.textContent = Math.floor(current);
+                    setTimeout(updateCounter, stepTime);
+                } else {
+                    numberElement.textContent = target;
+                    // Agregar efecto de "brillo" al terminar
+                    counter.style.animation = 'counterComplete 0.5s ease-out';
+                }
+            };
+            
+            updateCounter();
+        });
     }
 
     showPatientDashboard(patient) {
