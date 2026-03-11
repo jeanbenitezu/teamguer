@@ -1216,6 +1216,16 @@ main {
     background: var(--primary-dark);
 }
 
+.btn-download {
+    background: var(--success-color);
+    color: white;
+    border: none;
+}
+
+.btn-download:hover {
+    background: #2F855A;
+}
+
 /* Estilos para botón eliminar paciente */
 .patient-header {
     display: flex;
@@ -1695,6 +1705,37 @@ main {
     gap: var(--spacing-md);
     margin-top: var(--spacing-lg);
     flex-wrap: wrap;
+}
+
+/* === MODAL DE DESCARGA === */
+.download-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+}
+
+.download-options .btn {
+    min-width: auto;
+    width: 100%;
+    padding: var(--spacing-md);
+    font-size: 1rem;
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+    color: var(--danger-color);
 }
 
 /* === RESPONSIVE === */

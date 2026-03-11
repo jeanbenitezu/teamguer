@@ -558,6 +558,7 @@ class App {
                 <div class="control-header">
                     <div class="control-date">${date}</div>
                     <div class="control-actions">
+                        <button onclick="app.downloadControl('${control.id}')" class="btn btn-sm btn-download" title="Descargar Control">📥</button>
                         <button onclick="app.editControl('${control.id}')" class="btn btn-sm btn-edit" title="Editar Control">✏️</button>
                         <button onclick="app.deleteControl('${control.id}', '${patientId}')" class="btn btn-sm btn-delete" title="Eliminar Control">🗑️</button>
                     </div>
@@ -1004,6 +1005,321 @@ class App {
                 alert('Error al eliminar el alumno: ' + error.message);
             }
         }
+    }
+
+    // === DOWNLOAD FUNCTIONS ===
+    downloadControl(controlId) {
+        const control = storage.getControl(controlId);
+        if (!control) {
+            alert('Control no encontrado');
+            return;
+        }
+
+        const patient = storage.getPatient(control.patientId);
+        if (!patient) {
+            alert('Paciente no encontrado');
+            return;
+        }
+
+        // Show download options modal
+        this.showDownloadModal(control, patient);
+    }
+
+    showDownloadModal(control, patient) {
+        const modalHTML = `
+            <div id="downloadModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>📥 Descargar Control</h3>
+                        <button onclick="app.closeDownloadModal()" class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Selecciona el formato de descarga para el control de <strong>${patient.name}</strong></p>
+                        <div class="download-options">
+                            <button onclick="app.downloadAsPDF('${control.id}')" class="btn btn-primary btn-large">
+                                📄 Descargar como PDF
+                            </button>
+                            <button onclick="app.downloadAsImage('${control.id}')" class="btn btn-secondary btn-large">
+                                🖼️ Descargar como Imagen
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Remove existing modal if any
+        const existingModal = document.getElementById('downloadModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        document.getElementById('downloadModal').style.display = 'block';
+    }
+
+    closeDownloadModal() {
+        const modal = document.getElementById('downloadModal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+
+    async downloadAsPDF(controlId) {
+        const control = storage.getControl(controlId);
+        const patient = storage.getPatient(control.patientId);
+        
+        try {
+            // Create the control view element
+            const controlView = this.createControlView(control, patient);
+            document.body.appendChild(controlView);
+
+            // Capture the element as canvas
+            const canvas = await html2canvas(controlView, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            });
+
+            // Create PDF
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+            
+            const imgData = canvas.toDataURL('image/png');
+            const imgWidth = 190;
+            const pageHeight = 295;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+
+            let position = 10;
+
+            pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            // Generate filename
+            const date = new Date(control.date).toISOString().split('T')[0];
+            const filename = `control_${patient.name.replace(/\s+/g, '_')}_${date}.pdf`;
+            
+            pdf.save(filename);
+            
+            // Clean up
+            document.body.removeChild(controlView);
+            this.closeDownloadModal();
+            
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Error al generar el PDF. Por favor, inténtalo de nuevo.');
+        }
+    }
+
+    async downloadAsImage(controlId) {
+        const control = storage.getControl(controlId);
+        const patient = storage.getPatient(control.patientId);
+        
+        try {
+            // Create the control view element
+            const controlView = this.createControlView(control, patient);
+            document.body.appendChild(controlView);
+
+            // Capture the element as canvas
+            const canvas = await html2canvas(controlView, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            });
+
+            // Create download link
+            const link = document.createElement('a');
+            const date = new Date(control.date).toISOString().split('T')[0];
+            const filename = `control_${patient.name.replace(/\s+/g, '_')}_${date}.png`;
+            
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            // Clean up
+            document.body.removeChild(controlView);
+            this.closeDownloadModal();
+            
+        } catch (error) {
+            console.error('Error generating image:', error);
+            alert('Error al generar la imagen. Por favor, inténtalo de nuevo.');
+        }
+    }
+
+    createControlView(control, patient) {
+        const date = new Date(control.date).toLocaleDateString('es-ES', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        const controlView = document.createElement('div');
+        controlView.className = 'control-download-view';
+        controlView.style.cssText = `
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            width: 800px;
+            padding: 40px;
+            background: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #2D3748;
+        `;
+
+        controlView.innerHTML = `
+            <div class="download-header">
+                <div class="download-logo">
+                    <img src="assets/logo.png" alt="TEAMGUER" style="width: 60px; height: 60px; object-fit: contain;">
+                    <div style="margin-left: 15px;">
+                        <h1 style="margin: 0; color: #E53E3E; font-size: 28px; font-weight: bold;">TEAMGUER</h1>
+                        <p style="margin: 0; color: #666; font-size: 14px;">Control Corporal</p>
+                    </div>
+                </div>
+                <div class="download-date" style="text-align: right; color: #666; font-size: 14px;">
+                    Generado: ${new Date().toLocaleDateString('es-ES')}
+                </div>
+            </div>
+            
+            <hr style="margin: 30px 0; border: none; height: 2px; background: #E53E3E;">
+            
+            <div class="download-patient-info">
+                <h2 style="color: #E53E3E; margin-bottom: 20px; font-size: 24px;">📊 Control de ${patient.name}</h2>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
+                    <div><strong>Fecha:</strong> ${date}</div>
+                    <div><strong>Edad:</strong> ${patient.age} años</div>
+                    <div><strong>Estatura:</strong> ${patient.height} cm</div>
+                </div>
+            </div>
+            
+            <div class="download-measurements">
+                <h3 style="color: #2D3748; margin-bottom: 20px; font-size: 20px;">📏 Medidas Corporales</h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px;">
+                    <div class="measurement-item" style="padding: 15px; background: #F7FAFC; border-radius: 8px; border-left: 4px solid #E53E3E;">
+                        <div style="color: #666; font-size: 14px;">Peso</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #2D3748;">${control.weight} kg</div>
+                    </div>
+                    <div class="measurement-item" style="padding: 15px; background: #F7FAFC; border-radius: 8px; border-left: 4px solid #E53E3E;">
+                        <div style="color: #666; font-size: 14px;">IMC</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #2D3748;">${control.imc || 'N/A'}</div>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;">
+                    <div class="measurement-item" style="padding: 15px; background: #FED7D7; border-radius: 8px; text-align: center;">
+                        <div style="color: #666; font-size: 14px;">% Grasa</div>
+                        <div style="font-size: 20px; font-weight: bold; color: #E53E3E;">${control.fatPercentage}%</div>
+                    </div>
+                    <div class="measurement-item" style="padding: 15px; background: #C6F6D5; border-radius: 8px; text-align: center;">
+                        <div style="color: #666; font-size: 14px;">% Músculo</div>
+                        <div style="font-size: 20px; font-weight: bold; color: #38A169;">${control.musclePercentage}%</div>
+                    </div>
+                    <div class="measurement-item" style="padding: 15px; background: #BEE3F8; border-radius: 8px; text-align: center;">
+                        <div style="color: #666; font-size: 14px;">% Agua</div>
+                        <div style="font-size: 20px; font-weight: bold; color: #3182CE;">${control.waterPercentage}%</div>
+                    </div>
+                </div>
+            </div>
+            
+            ${control.waistCircumference || control.armCircumference || control.thighCircumference ? `
+                <div class="download-circumferences">
+                    <h3 style="color: #2D3748; margin-bottom: 20px; font-size: 20px;">📐 Circunferencias</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;">
+                        ${control.waistCircumference ? `
+                            <div style="padding: 15px; background: #F7FAFC; border-radius: 8px; text-align: center;">
+                                <div style="color: #666; font-size: 14px;">Cintura</div>
+                                <div style="font-size: 18px; font-weight: bold;">${control.waistCircumference} cm</div>
+                            </div>
+                        ` : ''}
+                        ${control.armCircumference ? `
+                            <div style="padding: 15px; background: #F7FAFC; border-radius: 8px; text-align: center;">
+                                <div style="color: #666; font-size: 14px;">Brazo</div>
+                                <div style="font-size: 18px; font-weight: bold;">${control.armCircumference} cm</div>
+                            </div>
+                        ` : ''}
+                        ${control.thighCircumference ? `
+                            <div style="padding: 15px; background: #F7FAFC; border-radius: 8px; text-align: center;">
+                                <div style="color: #666; font-size: 14px;">Muslo</div>
+                                <div style="font-size: 18px; font-weight: bold;">${control.thighCircumference} cm</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            ` : ''}
+            
+            ${control.strongCapacity || control.basalMetabolism || control.visceralFat || control.metabolicAge ? `
+                <div class="download-additional">
+                    <h3 style="color: #2D3748; margin-bottom: 20px; font-size: 20px;">📈 Datos Adicionales</h3>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px;">
+                        ${control.strongCapacity ? `
+                            <div style="padding: 15px; background: #F7FAFC; border-radius: 8px;">
+                                <div style="color: #666; font-size: 14px;">Capacidad Fuerte</div>
+                                <div style="font-size: 18px; font-weight: bold;">${control.strongCapacity}</div>
+                            </div>
+                        ` : ''}
+                        ${control.basalMetabolism ? `
+                            <div style="padding: 15px; background: #F7FAFC; border-radius: 8px;">
+                                <div style="color: #666; font-size: 14px;">Metabolismo Basal</div>
+                                <div style="font-size: 18px; font-weight: bold;">${control.basalMetabolism}</div>
+                            </div>
+                        ` : ''}
+                        ${control.visceralFat ? `
+                            <div style="padding: 15px; background: #F7FAFC; border-radius: 8px;">
+                                <div style="color: #666; font-size: 14px;">Grasa Visceral</div>
+                                <div style="font-size: 18px; font-weight: bold;">${control.visceralFat}</div>
+                            </div>
+                        ` : ''}
+                        ${control.metabolicAge ? `
+                            <div style="padding: 15px; background: #F7FAFC; border-radius: 8px;">
+                                <div style="color: #666; font-size: 14px;">Edad Metabólica</div>
+                                <div style="font-size: 18px; font-weight: bold;">${control.metabolicAge} años</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            ` : ''}
+            
+            ${control.notes ? `
+                <div class="download-notes">
+                    <h3 style="color: #2D3748; margin-bottom: 15px; font-size: 20px;">📝 Notas</h3>
+                    <div style="padding: 20px; background: #F7FAFC; border-radius: 8px; border-left: 4px solid #E53E3E;">
+                        <p style="margin: 0; font-size: 16px; line-height: 1.5;">${control.notes}</p>
+                    </div>
+                </div>
+            ` : ''}
+            
+            <div class="download-footer" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #E2E8F0; text-align: center; color: #666; font-size: 12px;">
+                <p>TEAMGUER - Sistema de Control Corporal</p>
+                <p>Made with ♥ by Jean Benitez</p>
+            </div>
+        `;
+
+        // Add logo styling
+        const logoStyle = document.createElement('style');
+        logoStyle.textContent = `
+            .download-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 30px;
+            }
+            .download-logo {
+                display: flex;
+                align-items: center;
+            }
+        `;
+        controlView.appendChild(logoStyle);
+
+        return controlView;
     }
 
 
