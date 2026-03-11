@@ -904,6 +904,78 @@ main {
     gap: var(--spacing-xs);
 }
 
+/* Ranking Info Styles */
+.ranking-info {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+    transition: all 0.3s ease;
+}
+
+.ranking-info.hidden {
+    display: none;
+}
+
+.rank-badge {
+    font-size: 1.2rem;
+    font-weight: 800;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    display: inline-block;
+    text-align: center;
+    min-width: 120px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.ranking-info.top-rank .rank-badge {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #8B4513;
+    animation: rankingGlow 2s ease-in-out infinite;
+}
+
+.ranking-info.rank-1 .rank-badge {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #8B4513;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+}
+
+.ranking-info.rank-2 .rank-badge {
+    background: linear-gradient(135deg, #C0C0C0, #E6E6E6);
+    color: #4A4A4A;
+    box-shadow: 0 4px 12px rgba(192, 192, 192, 0.4);
+}
+
+.ranking-info.rank-3 .rank-badge {
+    background: linear-gradient(135deg, #CD7F32, #DAA520);
+    color: var(--text-white);
+    box-shadow: 0 4px 12px rgba(205, 127, 50, 0.4);
+}
+
+.rank-badge.rank-other {
+    background: linear-gradient(135deg, var(--teamguer-gray), var(--teamguer-light-gray));
+    color: var(--text-white);
+}
+
+.rank-total {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+@keyframes rankingGlow {
+    0%, 100% {
+        box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+    }
+    50% {
+        box-shadow: 0 6px 20px rgba(255, 215, 0, 0.7);
+    }
+}
+
 /* === TARJETAS DE PROGRESO === */
 .progress-section {
     margin-bottom: var(--spacing-lg);

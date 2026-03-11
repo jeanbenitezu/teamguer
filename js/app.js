@@ -339,6 +339,9 @@ class App {
         if (welcomeScreen) welcomeScreen.classList.remove('hidden');
         if (patientDashboard) patientDashboard.classList.add('hidden');
         if (patientStickyInfo) patientStickyInfo.classList.add('hidden');
+        
+        // Limpiar información del ranking cuando no hay alumno seleccionado
+        this.clearRankingInfo();
     }
 
     showPatientDashboard(patient) {
@@ -392,6 +395,9 @@ class App {
         // Actualizar score
         const monthlyScore = storage.calculateMonthlyScore(patientId);
         document.getElementById('monthlyScore').textContent = monthlyScore;
+        
+        // Actualizar información de ranking
+        this.updateRankingInfo(patientId, monthlyScore);
         
         // Actualizar tendencia del score
         if (previousControl) {
@@ -579,6 +585,9 @@ class App {
         // Resetear valores a estado inicial
         document.getElementById('monthlyScore').textContent = '50';
         document.getElementById('scoreTrend').textContent = '🆕 ¡Registra tu primer control!';
+        
+        // Limpiar información del ranking cuando no hay controles
+        this.clearRankingInfo();
         
         ['weight', 'fat', 'muscle', 'water', 'imc', 'waist', 'hr'].forEach(type => {
             const currentEl = document.getElementById(`current${type.charAt(0).toUpperCase() + type.slice(1)}`);
@@ -858,6 +867,90 @@ class App {
         const headerTitle = document.querySelector('.leaderboard-header h2');
         if (headerTitle) {
             headerTitle.innerHTML = '<span class="title-glow">🏆 Top 5 Alumnos del Mes 🏆</span>';
+        }
+    }
+
+    // === RANKING FUNCTIONS ===
+    getPatientRanking(patientId) {
+        const patients = storage.getPatients();
+        
+        // Calcular puntajes para todos los pacientes con al menos un control
+        const patientsWithScores = patients.map(patient => {
+            const controls = storage.getControlsByPatient(patient.id);
+            if (controls.length === 0) return null;
+            
+            return {
+                id: patient.id,
+                name: patient.name,
+                monthlyScore: storage.calculateMonthlyScore(patient.id),
+                totalControls: controls.length
+            };
+        }).filter(patient => patient !== null);
+
+        // Ordenar por puntaje descendente
+        const rankedPatients = patientsWithScores.sort((a, b) => b.monthlyScore - a.monthlyScore);
+
+        // Encontrar la posición del paciente actual
+        const patientIndex = rankedPatients.findIndex(p => p.id === patientId);
+        
+        if (patientIndex === -1) {
+            return null;
+        }
+
+        return {
+            rank: patientIndex + 1,
+            total: rankedPatients.length,
+            isInTop5: patientIndex < 5
+        };
+    }
+
+    updateRankingInfo(patientId, monthlyScore) {
+        const rankingInfo = document.getElementById('rankingInfo');
+        const rankingText = document.getElementById('rankingText');
+        
+        if (!rankingInfo || !rankingText) return;
+
+        const ranking = this.getPatientRanking(patientId);
+        
+        if (!ranking || ranking.total < 2) {
+            // Ocultar si no hay suficientes datos para ranking
+            rankingInfo.classList.add('hidden');
+            return;
+        }
+
+        rankingInfo.classList.remove('hidden');
+        
+        if (ranking.isInTop5) {
+            // Está en el top 5
+            const rankEmojis = ['', '🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+            const rankEmoji = rankEmojis[ranking.rank] || `${ranking.rank}⃣`;
+            
+            rankingText.innerHTML = `
+                <span class="rank-badge rank-${ranking.rank}">
+                    ${rankEmoji} TOP ${ranking.rank}
+                </span>
+                <span class="rank-total">de ${ranking.total} alumnos</span>
+            `;
+            
+            rankingInfo.className = `ranking-info top-rank rank-${ranking.rank}`;
+        } else {
+            // No está en el top 5
+            rankingText.innerHTML = `
+                <span class="rank-badge rank-other">
+                    #${ranking.rank}
+                </span>
+                <span class="rank-total">de ${ranking.total} alumnos</span>
+            `;
+            
+            rankingInfo.className = 'ranking-info';
+        }
+    }
+
+    clearRankingInfo() {
+        const rankingInfo = document.getElementById('rankingInfo');
+        if (rankingInfo) {
+            rankingInfo.classList.add('hidden');
+            rankingInfo.className = 'ranking-info hidden';
         }
     }
 
