@@ -676,7 +676,49 @@ class App {
         if (leaderboardSection) {
             this.loadLeaderboardData();
             leaderboardSection.classList.remove('hidden');
+            
+            // Agregar efecto de "fanfarria" visual al abrir
+            this.triggerCelebrationEffect();
         }
+    }
+
+    triggerCelebrationEffect() {
+        // Crear elementos de celebración temporales
+        const celebrationElements = [];
+        const emojis = ['🎉', '🎊', '⭐', '✨', '🏆', '👑', '🎯', '🔥'];
+        
+        for (let i = 0; i < 20; i++) {
+            const celebration = document.createElement('div');
+            const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+            celebration.innerHTML = emoji;
+            celebration.style.cssText = `
+                position: fixed;
+                left: ${Math.random() * 100}vw;
+                top: ${Math.random() * 100}vh;
+                font-size: ${Math.random() * 30 + 20}px;
+                pointer-events: none;
+                z-index: 1001;
+                animation: celebrationFall ${2 + Math.random() * 2}s ease-out forwards;
+                opacity: 0;
+            `;
+            
+            document.body.appendChild(celebration);
+            celebrationElements.push(celebration);
+            
+            // Animar entrada
+            setTimeout(() => {
+                celebration.style.opacity = '1';
+            }, i * 50);
+        }
+        
+        // Limpiar elementos después de la animación
+        setTimeout(() => {
+            celebrationElements.forEach(el => {
+                if (el.parentNode) {
+                    el.parentNode.removeChild(el);
+                }
+            });
+        }, 4000);
     }
 
     hideLeaderboard() {
@@ -768,15 +810,33 @@ class App {
         }).join('');
 
         leaderboardList.innerHTML = leaderboardHTML;
+
+        // Solo aplicar el título sin animaciones
+        setTimeout(() => {
+            this.enhanceLeaderboardForTV();
+        }, 100);
     }
 
     getScoreTrendIcon(score) {
-        if (score >= 80) return '🔥';
-        if (score >= 70) return '📈';
-        if (score >= 60) return '✨';
-        if (score >= 50) return '🎯';
-        return '💪';
+        if (score >= 90) return '🔥💪';
+        if (score >= 80) return '🔥⭐';
+        if (score >= 70) return '📈✨';
+        if (score >= 60) return '🎯💫';
+        if (score >= 50) return '💪⚡';
+        return '🌟💪';
     }
+
+
+
+    enhanceLeaderboardForTV() {
+        // Solo mantener el título sin animaciones
+        const headerTitle = document.querySelector('.leaderboard-header h2');
+        if (headerTitle) {
+            headerTitle.innerHTML = '<span class="title-glow">🏆 Top 5 Alumnos del Mes 🏆</span>';
+        }
+    }
+
+
 }
 
 // Inicializar la aplicación cuando el DOM esté listo
