@@ -1766,28 +1766,28 @@ main {
 
 /* === LEADERBOARD === */
 .btn-accent {
-    background: linear-gradient(135deg, #FFD700, #FFA500, #FF6347);
-    color: var(--text-primary);
+    background: linear-gradient(135deg, var(--teamguer-red), #FF6347, var(--teamguer-red));
+    color: var(--teamguer-white);
     border: none;
     font-weight: 700;
     font-size: 1.1rem;
-    box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+    box-shadow: 0 8px 20px rgba(229, 62, 62, 0.4);
     transition: all 0.3s ease;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-    animation: goldPulse 2s infinite;
+    animation: teamguerPulse 2s infinite;
 }
 
 .btn-accent:hover {
-    background: linear-gradient(135deg, #FFB700, #FF8C00, #FF4500);
+    background: linear-gradient(135deg, var(--primary-dark), var(--teamguer-red), var(--primary-dark));
     transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 12px 25px rgba(255, 215, 0, 0.6);
+    box-shadow: 0 12px 25px rgba(229, 62, 62, 0.6);
 }
 
 /* Efecto especial para el botón del leaderboard */
 #leaderboardBtn {
     position: relative;
     overflow: hidden;
-    animation: goldPulse 2s infinite, buttonGlow 4s ease-in-out infinite;
+    animation: teamguerPulse 2s infinite, buttonGlow 4s ease-in-out infinite;
 }
 
 #leaderboardBtn::before {
@@ -1819,19 +1819,19 @@ main {
 
 @keyframes buttonGlow {
     0%, 100% {
-        filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
+        filter: drop-shadow(0 0 5px rgba(229, 62, 62, 0.5));
     }
     50% {
-        filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.8));
+        filter: drop-shadow(0 0 15px rgba(229, 62, 62, 0.8));
     }
 }
 
-@keyframes goldPulse {
+@keyframes teamguerPulse {
     0%, 100% {
-        box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+        box-shadow: 0 8px 20px rgba(229, 62, 62, 0.4);
     }
     50% {
-        box-shadow: 0 10px 30px rgba(255, 215, 0, 0.7);
+        box-shadow: 0 10px 30px rgba(229, 62, 62, 0.7);
     }
 }
 
@@ -1862,7 +1862,7 @@ main {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, #1A1A1A 0%, #2D1B69 50%, #FF6B6B 100%);
+    background: linear-gradient(135deg, var(--teamguer-dark) 0%, var(--teamguer-dark-blue) 50%, var(--teamguer-red) 100%);
     backdrop-filter: blur(15px);
     z-index: 1000;
     display: flex;
@@ -1875,11 +1875,11 @@ main {
 @keyframes leaderboardAppear {
     from {
         opacity: 0;
-        background: linear-gradient(135deg, #1A1A1A 0%, #1A1A1A 50%, #1A1A1A 100%);
+        background: linear-gradient(135deg, var(--teamguer-dark) 0%, var(--teamguer-dark) 50%, var(--teamguer-dark) 100%);
     }
     to {
         opacity: 1;
-        background: linear-gradient(135deg, #1A1A1A 0%, #2D1B69 50%, #FF6B6B 100%);
+        background: linear-gradient(135deg, var(--teamguer-dark) 0%, var(--teamguer-dark-blue) 50%, var(--teamguer-red) 100%);
     }
 }
 
@@ -1934,7 +1934,7 @@ main {
     left: -3px;
     right: -3px;
     bottom: -3px;
-    background: linear-gradient(45deg, #FFD700, #FF6347, #4299E1, #48BB78);
+    background: linear-gradient(45deg, var(--teamguer-red), #FFD700, var(--info-color), var(--success-color));
     border-radius: 2rem;
     z-index: -1;
     animation: borderGlow 4s linear infinite;
@@ -2036,13 +2036,18 @@ main {
 }
 
 .leaderboard-item.rank-1::after {
-    content: "👑";
+    content: '';
     position: absolute;
     top: -15px;
     right: 2rem;
-    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
+    background-image: url('assets/logo.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
     animation: crownBounce 2s ease-in-out infinite;
-    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 8px rgba(229, 62, 62, 0.6));
 }
 
 @keyframes crownBounce {
@@ -2331,7 +2336,8 @@ main {
     }
     
     .leaderboard-item.rank-1::after {
-        font-size: 4rem;
+        width: 4rem;
+        height: 4rem;
         right: 3rem;
         top: -20px;
     }

@@ -674,6 +674,7 @@ class App {
     showLeaderboard() {
         const leaderboardSection = document.getElementById('leaderboardSection');
         const header = document.querySelector('.header');
+        const patientStickyInfo = document.getElementById('patientStickyInfo');
         
         if (leaderboardSection) {
             this.loadLeaderboardData();
@@ -683,6 +684,10 @@ class App {
             if (header) {
                 header.style.display = 'none';
             }
+
+            if (patientStickyInfo) {
+                patientStickyInfo.style.display = 'none';
+            }
             
             // Agregar efecto de "fanfarria" visual al abrir
             this.triggerCelebrationEffect();
@@ -690,23 +695,25 @@ class App {
     }
 
     triggerCelebrationEffect() {
-        // Crear elementos de celebración temporales
+        // Crear elementos de celebración con logo TEAMGUER
         const celebrationElements = [];
-        const emojis = ['🎉', '🎊', '⭐', '✨', '🏆', '👑', '🎯', '🔥'];
         
-        for (let i = 0; i < 20; i++) {
-            const celebration = document.createElement('div');
-            const emoji = emojis[Math.floor(Math.random() * emojis.length)];
-            celebration.innerHTML = emoji;
+        for (let i = 0; i < 15; i++) {
+            const celebration = document.createElement('img');
+            celebration.src = 'assets/logo.png';
+            celebration.alt = 'TEAMGUER';
             celebration.style.cssText = `
                 position: fixed;
                 left: ${Math.random() * 100}vw;
                 top: ${Math.random() * 100}vh;
-                font-size: ${Math.random() * 30 + 20}px;
+                width: ${Math.random() * 30 + 40}px;
+                height: ${Math.random() * 30 + 40}px;
+                object-fit: contain;
                 pointer-events: none;
                 z-index: 1001;
                 animation: celebrationFall ${2 + Math.random() * 2}s ease-out forwards;
                 opacity: 0;
+                filter: drop-shadow(0 0 10px rgba(229, 62, 62, 0.6));
             `;
             
             document.body.appendChild(celebration);
@@ -715,7 +722,7 @@ class App {
             // Animar entrada
             setTimeout(() => {
                 celebration.style.opacity = '1';
-            }, i * 50);
+            }, i * 80);
         }
         
         // Limpiar elementos después de la animación
@@ -725,19 +732,23 @@ class App {
                     el.parentNode.removeChild(el);
                 }
             });
-        }, 4000);
+        }, 5000);
     }
 
     hideLeaderboard() {
         const leaderboardSection = document.getElementById('leaderboardSection');
         const header = document.querySelector('.header');
-        
+        const patientStickyInfo = document.getElementById('patientStickyInfo');
         if (leaderboardSection) {
             leaderboardSection.classList.add('hidden');
             
             // Show header again when leaderboard is hidden
             if (header) {
                 header.style.display = '';
+            }
+
+            if (patientStickyInfo) {
+                patientStickyInfo.style.display = '';
             }
         }
     }
