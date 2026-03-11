@@ -219,6 +219,9 @@ main {
     animation-fill-mode: both;
     min-height: 128px;
     min-width: 128px;
+    position: fixed;
+    left: 40vw;
+    top: 0px;
 }
 
 .logo-link {
