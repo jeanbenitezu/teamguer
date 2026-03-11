@@ -2260,7 +2260,7 @@ main {
 }
 
 .leaderboard-footer {
-    margin-top: 3rem;
+    margin: 1rem;
     text-align: center;
     color: var(--text-secondary);
     font-style: italic;
