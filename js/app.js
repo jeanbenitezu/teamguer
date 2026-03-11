@@ -1373,40 +1373,49 @@ class App {
         const patient = storage.getPatient(patientId);
         
         try {
-            // Create the dashboard view element
-            const dashboardView = this.createDashboardView(patient);
-            document.body.appendChild(dashboardView);
+            // Create the main dashboard view (without controls section)
+            const mainDashboardView = this.createMainDashboardView(patient);
+            document.body.appendChild(mainDashboardView);
 
-            // Capture the element as canvas
-            const canvas = await html2canvas(dashboardView, {
+            // Create the controls section separately
+            const controlsView = this.createControlsSectionView(patient);
+            document.body.appendChild(controlsView);
+
+            // Capture main section as canvas
+            const mainCanvas = await html2canvas(mainDashboardView, {
                 scale: 1.5,
                 useCORS: true,
                 backgroundColor: '#ffffff',
-                width: 900,
-                height: dashboardView.scrollHeight
+                width: 900
+            });
+
+            // Capture controls section as canvas
+            const controlsCanvas = await html2canvas(controlsView, {
+                scale: 1.5,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                width: 900
             });
 
             // Create PDF
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('p', 'mm', 'a4');
             
-            const imgData = canvas.toDataURL('image/png');
+            // Add main section to first page
+            const mainImgData = mainCanvas.toDataURL('image/png');
             const imgWidth = 190;
-            const pageHeight = 280;
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            let heightLeft = imgHeight;
+            const mainImgHeight = (mainCanvas.height * imgWidth) / mainCanvas.width;
+            
+            pdf.addImage(mainImgData, 'PNG', 10, 10, imgWidth, Math.min(mainImgHeight, 270));
 
-            let position = 10;
-
-            pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-
-            while (heightLeft >= 0) {
-                position = heightLeft - imgHeight + 10;
-                pdf.addPage();
-                pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
-            }
+            // Add new page for controls
+            pdf.addPage();
+            
+            // Add controls section to second page
+            const controlsImgData = controlsCanvas.toDataURL('image/png');
+            const controlsImgHeight = (controlsCanvas.height * imgWidth) / controlsCanvas.width;
+            
+            pdf.addImage(controlsImgData, 'PNG', 10, 10, imgWidth, Math.min(controlsImgHeight, 270));
 
             // Generate filename
             const date = new Date().toISOString().split('T')[0];
@@ -1415,7 +1424,8 @@ class App {
             pdf.save(filename);
             
             // Clean up
-            document.body.removeChild(dashboardView);
+            document.body.removeChild(mainDashboardView);
+            document.body.removeChild(controlsView);
             this.closeDashboardDownloadModal();
             
         } catch (error) {
@@ -1604,9 +1614,9 @@ class App {
             
             <!-- Recent Controls Summary -->
             ${controls.length > 0 ? `
-                <div class="dashboard-controls" style="margin-bottom: 40px;">
-                    <h3 style="color: #2D3748; margin-bottom: 20px; font-size: 20px;">📋 Controles</h3>
-                    ${controls.map(control => `
+                <div class="dashboard-controls" style="margin-bottom: 40px; page-break-before: always;">
+                    <h3 style="color: #2D3748; margin-bottom: 20px; font-size: 20px;">📋 Últimos Controles</h3>
+                    ${controls.slice(0, 5).map(control => `
                         <div style="padding: 15px; background: #F7FAFC; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #E53E3E;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                                 <div style="font-weight: bold; color: #2D3748;">${new Date(control.date).toLocaleDateString('es-ES')}</div>
@@ -1631,6 +1641,204 @@ class App {
         `;
 
         return dashboardView;
+    }
+
+    createMainDashboardView(patient) {
+        const controls = storage.getControlsByPatient(patient.id);
+        const monthlyScore = storage.calculateMonthlyScore(patient.id);
+        const ranking = this.getPatientRanking(patient.id);
+        
+        // Get current values
+        const latestControl = controls.length > 0 ? controls[0] : null;
+        const previousControl = controls.length > 1 ? controls[1] : null;
+        
+        const dashboardView = document.createElement('div');
+        dashboardView.className = 'dashboard-download-view-main';
+        dashboardView.style.cssText = `
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            width: 900px;
+            padding: 30px;
+            background: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #2D3748;
+            line-height: 1.6;
+        `;
+
+        const currentDate = new Date().toLocaleDateString('es-ES', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        dashboardView.innerHTML = `
+            <div class="dashboard-header" style="margin-bottom: 40px;">
+                <div class="dashboard-logo" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center;">
+                        <img src="assets/logo.png" alt="TEAMGUER" style="width: 60px; height: 60px; object-fit: contain; margin-right: 15px;">
+                        <div>
+                            <h1 style="margin: 0; color: #E53E3E; font-size: 28px; font-weight: bold;">TEAMGUER</h1>
+                            <p style="margin: 0; color: #666; font-size: 14px;">Resumen del Alumno</p>
+                        </div>
+                    </div>
+                    <div style="text-align: right; color: #666; font-size: 14px;">
+                        <p style="margin: 0;">Generado: ${currentDate}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <hr style="margin: 30px 0; border: none; height: 2px; background: #E53E3E;">
+            
+            <!-- Patient Info -->
+            <div class="dashboard-patient-info" style="margin-bottom: 40px;">
+                <h2 style="color: #E53E3E; margin-bottom: 20px; font-size: 24px;">📊 Resumen de ${patient.name}</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <div style="padding: 20px; background: #F7FAFC; border-radius: 12px; border-left: 4px solid #E53E3E;">
+                        <div style="color: #666; font-size: 14px; margin-bottom: 5px;">Información Personal</div>
+                        <div style="font-size: 16px; font-weight: bold;">👤 ${patient.age} años</div>
+                        <div style="font-size: 16px; font-weight: bold;">📏 ${patient.height} cm</div>
+                        <div style="font-size: 16px; font-weight: bold;">📅 ${controls.length} controles</div>
+                    </div>
+                    <div style="padding: 20px; background: #C6F6D5; border-radius: 12px; text-align: center;">
+                        <div style="color: #666; font-size: 14px; margin-bottom: 5px;">Puntaje del Mes</div>
+                        <div style="font-size: 36px; font-weight: bold; color: #38A169;">🏆 ${monthlyScore}/100</div>
+                        ${ranking && ranking.isInTop5 ? `<div style="color: #38A169; font-weight: bold; margin-top: 5px;">#${ranking.rank} en el ranking</div>` : ''}
+                    </div>
+                </div>
+            </div>
+            
+            ${latestControl ? `
+                <!-- Current Measurements -->
+                <div class="dashboard-measurements" style="margin-bottom: 40px;">
+                    <h3 style="color: #2D3748; margin-bottom: 20px; font-size: 20px;">📏 Medidas Actuales</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                        <div style="padding: 20px; background: #F7FAFC; border-radius: 12px; text-align: center;">
+                            <div style="color: #666; font-size: 14px;">Peso</div>
+                            <div style="font-size: 28px; font-weight: bold; color: #2D3748;">⚖️ ${latestControl.weight} kg</div>
+                        </div>
+                        <div style="padding: 20px; background: #FED7D7; border-radius: 12px; text-align: center;">
+                            <div style="color: #666; font-size: 14px;">% Grasa</div>
+                            <div style="font-size: 28px; font-weight: bold; color: #E53E3E;">🔥 ${latestControl.fatPercentage}%</div>
+                        </div>
+                        <div style="padding: 20px; background: #C6F6D5; border-radius: 12px; text-align: center;">
+                            <div style="color: #666; font-size: 14px;">% Músculo</div>
+                            <div style="font-size: 28px; font-weight: bold; color: #38A169;">💪 ${latestControl.musclePercentage}%</div>
+                        </div>
+                        <div style="padding: 20px; background: #BEE3F8; border-radius: 12px; text-align: center;">
+                            <div style="color: #666; font-size: 14px;">% Agua</div>
+                            <div style="font-size: 28px; font-weight: bold; color: #3182CE;">💧 ${latestControl.waterPercentage}%</div>
+                        </div>
+                        ${latestControl.imc ? `
+                            <div style="padding: 20px; background: #FAF5FF; border-radius: 12px; text-align: center;">
+                                <div style="color: #666; font-size: 14px;">IMC</div>
+                                <div style="font-size: 28px; font-weight: bold; color: #805AD5;">📈 ${latestControl.imc}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                ${previousControl ? `
+                    <!-- Progress Comparison -->
+                    <div class="dashboard-progress" style="margin-bottom: 40px;">
+                        <h3 style="color: #2D3748; margin-bottom: 20px; font-size: 20px;">📈 Progreso vs Control Anterior</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            ${this.createProgressItem('Peso', latestControl.weight, previousControl.weight, 'kg', false)}
+                            ${this.createProgressItem('% Grasa', latestControl.fatPercentage, previousControl.fatPercentage, '%', true)}
+                            ${this.createProgressItem('% Músculo', latestControl.musclePercentage, previousControl.musclePercentage, '%', false)}
+                            ${this.createProgressItem('% Agua', latestControl.waterPercentage, previousControl.waterPercentage, '%', false)}
+                        </div>
+                    </div>
+                ` : ''}
+                
+                ${latestControl.waistCircumference || latestControl.armCircumference || latestControl.thighCircumference ? `
+                    <!-- Circumferences -->
+                    <div class="dashboard-circumferences" style="margin-bottom: 40px;">
+                        <h3 style="color: #2D3748; margin-bottom: 20px; font-size: 20px;">📐 Circunferencias</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                            ${latestControl.waistCircumference ? `
+                                <div style="padding: 15px; background: #F7FAFC; border-radius: 8px; text-align: center;">
+                                    <div style="color: #666; font-size: 14px;">Cintura</div>
+                                    <div style="font-size: 20px; font-weight: bold;">${latestControl.waistCircumference} cm</div>
+                                </div>
+                            ` : ''}
+                            ${latestControl.armCircumference ? `
+                                <div style="padding: 15px; background: #F7FAFC; border-radius: 8px; text-align: center;">
+                                    <div style="color: #666; font-size: 14px;">Brazo</div>
+                                    <div style="font-size: 20px; font-weight: bold;">${latestControl.armCircumference} cm</div>
+                                </div>
+                            ` : ''}
+                            ${latestControl.thighCircumference ? `
+                                <div style="padding: 15px; background: #F7FAFC; border-radius: 8px; text-align: center;">
+                                    <div style="color: #666; font-size: 14px;">Muslo</div>
+                                    <div style="font-size: 20px; font-weight: bold;">${latestControl.thighCircumference} cm</div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                ` : ''}
+            ` : `
+                <div style="text-align: center; padding: 40px; background: #FFF5F5; border-radius: 12px; color: #E53E3E;">
+                    <h3>Sin controles registrados</h3>
+                    <p>Este alumno aún no tiene controles registrados.</p>
+                </div>
+            `}
+        `;
+
+        return dashboardView;
+    }
+
+    createControlsSectionView(patient) {
+        const controls = storage.getControlsByPatient(patient.id);
+        
+        const controlsView = document.createElement('div');
+        controlsView.className = 'dashboard-download-controls';
+        controlsView.style.cssText = `
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            width: 900px;
+            padding: 30px;
+            background: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #2D3748;
+            line-height: 1.6;
+        `;
+
+        controlsView.innerHTML = `
+            ${controls.length > 0 ? `
+                <!-- Recent Controls Summary -->
+                <div class="dashboard-controls" style="margin-bottom: 40px;">
+                    <h3 style="color: #2D3748; margin-bottom: 20px; font-size: 20px;">📋 Últimos Controles</h3>
+                    ${controls.slice(0, 5).map(control => `
+                        <div style="padding: 15px; background: #F7FAFC; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #E53E3E;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <div style="font-weight: bold; color: #2D3748;">${new Date(control.date).toLocaleDateString('es-ES')}</div>
+                                <div style="color: #666; font-size: 14px;">${control.weight} kg</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; font-size: 14px;">
+                                <div>Grasa: ${control.fatPercentage}%</div>
+                                <div>Músculo: ${control.musclePercentage}%</div>
+                                <div>Agua: ${control.waterPercentage}%</div>
+                                ${control.imc ? `<div>IMC: ${control.imc}</div>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+            
+            <!-- Footer -->
+            <div class="dashboard-footer" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #E2E8F0; text-align: center; color: #666; font-size: 12px;">
+                <p><strong>TEAMGUER - Sistema de Control Corporal</strong></p>
+                <p>Made with ♥ by Jean Benitez</p>
+                <div style="margin-top: 10px; font-size: 10px; color: #999;">
+                    <p>Este resumen es válido solo como referencia. Consulte con un profesional de la salud para interpretación médica.</p>
+                </div>
+            </div>
+        `;
+
+        return controlsView;
     }
 
     createProgressItem(label, current, previous, unit, isLowerBetter = false) {
