@@ -543,7 +543,7 @@ class App {
             return;
         }
 
-        controls.slice(0, 3).forEach(control => {
+        controls.forEach(control => {
             const controlEl = document.createElement('div');
             controlEl.className = 'control-item slide-up';
             
@@ -555,7 +555,13 @@ class App {
             });
 
             controlEl.innerHTML = `
-                <div class="control-date">${date}</div>
+                <div class="control-header">
+                    <div class="control-date">${date}</div>
+                    <div class="control-actions">
+                        <button onclick="app.editControl('${control.id}')" class="btn btn-sm btn-edit" title="Editar Control">✏️</button>
+                        <button onclick="app.deleteControl('${control.id}', '${patientId}')" class="btn btn-sm btn-delete" title="Eliminar Control">🗑️</button>
+                    </div>
+                </div>
                 <div class="control-summary">
                     <div class="control-metric">
                         <span class="label">Peso</span>
@@ -951,6 +957,52 @@ class App {
         if (rankingInfo) {
             rankingInfo.classList.add('hidden');
             rankingInfo.className = 'ranking-info hidden';
+        }
+    }
+
+    // === CONTROL MANAGEMENT ===
+    editControl(controlId) {
+        // Redirigir a new-control.html con parámetro editId
+        window.location.href = `new-control.html?editId=${controlId}`;
+    }
+
+    deleteControl(controlId, patientId) {
+        if (confirm('¿Estás seguro de que quieres eliminar este control? Esta acción no se puede deshacer.')) {
+            try {
+                storage.deleteControl(controlId);
+                
+                // Mostrar mensaje de éxito
+                this.showSuccessMessage('Control eliminado exitosamente');
+                
+                // Actualizar la vista
+                this.updateDashboardData(patientId);
+                this.updateChart(patientId);
+                this.updateRecentControls(patientId);
+                
+            } catch (error) {
+                alert('Error al eliminar el control: ' + error.message);
+            }
+        }
+    }
+
+    deletePatient(patientId) {
+        const patient = storage.getPatient(patientId);
+        const confirmMessage = `¿Estás seguro de que quieres eliminar a ${patient.name}? Se ocultarán todos sus datos y controles.`;
+        
+        if (confirm(confirmMessage)) {
+            try {
+                storage.deletePatient(patientId);
+                
+                // Mostrar mensaje de éxito
+                this.showSuccessMessage('Alumno eliminado exitosamente');
+                
+                // Recargar lista de alumnos y mostrar welcome screen
+                this.loadPatients();
+                this.showWelcomeScreen();
+                
+            } catch (error) {
+                alert('Error al eliminar el alumno: ' + error.message);
+            }
         }
     }
 

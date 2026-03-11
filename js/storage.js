@@ -28,16 +28,27 @@ class LocalStorage {
     getPatients() {
         try {
             const patients = localStorage.getItem(this.PATIENTS_KEY);
-            return patients ? JSON.parse(patients) : [];
+            return patients ? JSON.parse(patients).filter(p => !p.deleted) : [];
         } catch (error) {
             console.error('Error al obtener alumnos:', error);
             return [];
         }
     }
 
+    getAllPatients() {
+        try {
+            const patients = localStorage.getItem(this.PATIENTS_KEY);
+            return patients ? JSON.parse(patients) : [];
+        } catch (error) {
+            console.error('Error al obtener todos los alumnos:', error);
+            return [];
+        }
+    }
+
     getPatient(patientId) {
-        const patients = this.getPatients();
-        return patients.find(p => p.id === patientId);
+        const patients = this.getAllPatients();
+        const patient = patients.find(p => p.id === patientId);
+        return patient && !patient.deleted ? patient : null;
     }
 
     savePatient(patientData) {
@@ -80,11 +91,19 @@ class LocalStorage {
 
     deletePatient(patientId) {
         try {
-            const patients = this.getPatients();
-            const filteredPatients = patients.filter(p => p.id !== patientId);
-            localStorage.setItem(this.PATIENTS_KEY, JSON.stringify(filteredPatients));
+            const patients = this.getAllPatients();
+            const patientIndex = patients.findIndex(p => p.id === patientId);
+            if (patientIndex === -1) {
+                throw new Error('Alumno no encontrado');
+            }
             
-            // También eliminar todos los controles del alumno
+            // Soft delete: marcar como eliminado
+            patients[patientIndex].deleted = true;
+            patients[patientIndex].deletedAt = new Date().toISOString();
+            
+            localStorage.setItem(this.PATIENTS_KEY, JSON.stringify(patients));
+            
+            // Soft delete de todos los controles del alumno
             this.deleteControlsByPatient(patientId);
             return true;
         } catch (error) {
@@ -97,11 +116,27 @@ class LocalStorage {
     getControls() {
         try {
             const controls = localStorage.getItem(this.CONTROLS_KEY);
-            return controls ? JSON.parse(controls) : [];
+            return controls ? JSON.parse(controls).filter(c => !c.deleted) : [];
         } catch (error) {
             console.error('Error al obtener controles:', error);
             return [];
         }
+    }
+
+    getAllControls() {
+        try {
+            const controls = localStorage.getItem(this.CONTROLS_KEY);
+            return controls ? JSON.parse(controls) : [];
+        } catch (error) {
+            console.error('Error al obtener todos los controles:', error);
+            return [];
+        }
+    }
+
+    getControl(controlId) {
+        const controls = this.getAllControls();
+        const control = controls.find(c => c.id === controlId);
+        return control && !control.deleted ? control : null;
     }
 
     getControlsByPatient(patientId) {
@@ -146,9 +181,9 @@ class LocalStorage {
 
     updateControl(controlId, updatedData) {
         try {
-            const controls = this.getControls();
+            const controls = this.getAllControls();
             const controlIndex = controls.findIndex(c => c.id === controlId);
-            if (controlIndex === -1) {
+            if (controlIndex === -1 || controls[controlIndex].deleted) {
                 throw new Error('Control no encontrado');
             }
             controls[controlIndex] = {
@@ -166,9 +201,17 @@ class LocalStorage {
 
     deleteControl(controlId) {
         try {
-            const controls = this.getControls();
-            const filteredControls = controls.filter(c => c.id !== controlId);
-            localStorage.setItem(this.CONTROLS_KEY, JSON.stringify(filteredControls));
+            const controls = this.getAllControls();
+            const controlIndex = controls.findIndex(c => c.id === controlId);
+            if (controlIndex === -1) {
+                throw new Error('Control no encontrado');
+            }
+            
+            // Soft delete: marcar como eliminado
+            controls[controlIndex].deleted = true;
+            controls[controlIndex].deletedAt = new Date().toISOString();
+            
+            localStorage.setItem(this.CONTROLS_KEY, JSON.stringify(controls));
             return true;
         } catch (error) {
             console.error('Error al eliminar control:', error);
@@ -178,9 +221,21 @@ class LocalStorage {
 
     deleteControlsByPatient(patientId) {
         try {
-            const controls = this.getControls();
-            const filteredControls = controls.filter(c => c.patientId !== patientId);
-            localStorage.setItem(this.CONTROLS_KEY, JSON.stringify(filteredControls));
+            const controls = this.getAllControls();
+            let updated = false;
+            
+            controls.forEach(control => {
+                if (control.patientId === patientId && !control.deleted) {
+                    control.deleted = true;
+                    control.deletedAt = new Date().toISOString();
+                    updated = true;
+                }
+            });
+            
+            if (updated) {
+                localStorage.setItem(this.CONTROLS_KEY, JSON.stringify(controls));
+            }
+            
             return true;
         } catch (error) {
             console.error('Error al eliminar controles del alumno:', error);

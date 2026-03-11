@@ -67,7 +67,14 @@
                 <!-- Patient Info -->
                 <section class="patient-info">
                     <div class="patient-card">
-                        <h2 id="patientName">Nombre del Alumno</h2>
+                        <div class="patient-header">
+                            <h2 id="patientName">Nombre del Alumno</h2>
+                            <div class="patient-actions">
+                                <button onclick="app.deletePatient(app.currentPatientId)" class="btn btn-delete-patient" title="Eliminar Alumno">
+                                    🗑️ Eliminar
+                                </button>
+                            </div>
+                        </div>
                         <div class="patient-stats">
                             <div class="stat">
                                 <span class="label">Edad</span>
@@ -212,7 +219,7 @@
 
                 <!-- Recent Controls -->
                 <section class="recent-controls">
-                    <h3>📋 Últimos Controles</h3>
+                    <h3>📋 Controles</h3>
                     <div id="recentControlsList" class="controls-list">
                         <!-- Los controles recientes se llenarán dinámicamente -->
                     </div>

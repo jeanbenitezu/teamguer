@@ -2,6 +2,8 @@
 class NewControlForm {
     constructor() {
         this.selectedPatientId = null;
+        this.editMode = false;
+        this.editControlId = null;
         this.init();
     }
 
@@ -12,12 +14,18 @@ class NewControlForm {
         this.checkUrlParameters();
     }
 
-    // Verificar parámetros URL para preseleccionar alumno
+    // Verificar parámetros URL para preseleccionar alumno o cargar control para editar
     checkUrlParameters() {
         const urlParams = new URLSearchParams(window.location.search);
         const patientId = urlParams.get('patientId');
+        const editId = urlParams.get('editId');
         
-        if (patientId) {
+        if (editId) {
+            // Modo edición
+            this.editMode = true;
+            this.editControlId = editId;
+            this.loadControlForEdit(editId);
+        } else if (patientId) {
             // Preseleccionar el alumno del parámetro URL
             setTimeout(() => {
                 const patientSelect = document.getElementById('patientSelectControl');
@@ -27,6 +35,94 @@ class NewControlForm {
                 }
             }, 100); // Pequeño delay para asegurar que los alumnos estén cargados
         }
+    }
+
+    loadControlForEdit(controlId) {
+        const control = storage.getControl(controlId);
+        if (!control) {
+            alert('Control no encontrado');
+            this.redirectToDashboard();
+            return;
+        }
+
+        // Actualizar UI para modo edición
+        this.updateUIForEditMode();
+
+        // Preseleccionar el alumno
+        setTimeout(() => {
+            const patientSelect = document.getElementById('patientSelectControl');
+            if (patientSelect) {
+                patientSelect.value = control.patientId;
+                this.selectPatient(control.patientId);
+                
+                // Cargar datos del control después de que se haya seleccionado el paciente
+                setTimeout(() => {
+                    this.loadControlData(control);
+                }, 100);
+            }
+        }, 100);
+    }
+
+    updateUIForEditMode() {
+        // Cambiar título del header
+        const headerTitle = document.querySelector('.brand h1');
+        if (headerTitle) {
+            headerTitle.textContent = 'Editar Control';
+        }
+
+        // Cambiar título del formulario
+        const formTitle = document.querySelector('.form-header h3');
+        if (formTitle) {
+            formTitle.textContent = '✏️ Editar Datos del Control';
+        }
+
+        // Cambiar texto del botón de submit
+        const submitBtn = document.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.innerHTML = '✏️ Actualizar Control';
+        }
+
+        // Cambiar título de la página
+        document.title = 'Editar Control - Estadistica TEAMGUER';
+        
+        // Cambiar título del modal de éxito
+        const modalTitle = document.querySelector('#successModal .modal-header h3');
+        if (modalTitle) {
+            modalTitle.textContent = '✅ Control Actualizado';
+        }
+        
+        // Deshabilitar el selector de paciente ya que no se puede cambiar en edición
+        const patientSelect = document.getElementById('patientSelectControl');
+        if (patientSelect) {
+            patientSelect.disabled = true;
+            patientSelect.style.backgroundColor = '#f5f5f5';
+            patientSelect.style.cursor = 'not-allowed';
+        }
+    }
+
+    loadControlData(control) {
+        // Cargar datos en el formulario
+        const fields = [
+            'date', 'weight', 'fatPercentage', 'musclePercentage', 
+            'waterPercentage', 'strongCapacity', 'basalMetabolism',
+            'waistCircumference', 'armCircumference', 'thighCircumference', 
+            'visceralFat', 'notes'
+        ];
+
+        fields.forEach(field => {
+            const element = document.getElementById(field);
+            if (element && control[field] !== undefined) {
+                if (field === 'date') {
+                    element.value = control.date;
+                } else {
+                    element.value = control[field];
+                }
+            }
+        });
+
+        // Actualizar cálculos y comparaciones
+        this.updateCalculatedValues();
+        this.updateComparison();
     }
 
     bindEvents() {
@@ -133,7 +229,7 @@ class NewControlForm {
 
     setDefaultDate() {
         const today = new Date().toISOString().split('T')[0];
-        document.getElementById('controlDate').value = today;
+        document.getElementById('date').value = today;
     }
 
     updateCalculatedValues() {
@@ -183,7 +279,7 @@ class NewControlForm {
             return;
         }
 
-        const currentDate = document.getElementById('controlDate').value;
+        const currentDate = document.getElementById('date').value;
         const previousControl = storage.getPreviousControlByPatient(this.selectedPatientId, currentDate);
 
         if (!previousControl) {
@@ -334,7 +430,7 @@ class NewControlForm {
         if (fat && muscle && water) {
             const total = fat + muscle + water;
             if (total < 85 || total > 115) {
-                errors.push('La suma de los porcentajes parece incorrecta (debería estar cerca del 100%)');
+                errors.push('La suma de los porcentajes de grasa, músculo y agua parece incorrecta (debería estar cerca del 100%)');
             }
         }
 
@@ -352,7 +448,7 @@ class NewControlForm {
         // Preparar datos del control
         const controlData = {
             patientId: this.selectedPatientId,
-            date: document.getElementById('controlDate').value,
+            date: document.getElementById('date').value,
             weight: parseFloat(document.getElementById('weight').value),
             fatPercentage: parseFloat(document.getElementById('fatPercentage').value),
             musclePercentage: parseFloat(document.getElementById('musclePercentage').value),
@@ -374,20 +470,38 @@ class NewControlForm {
         }
 
         try {
-            // Guardar el control
-            storage.saveControl(controlData);
-            
-            // Mostrar modal de éxito
-            this.showSuccessModal();
+            if (this.editMode && this.editControlId) {
+                // Modo edición: actualizar control existente
+                storage.updateControl(this.editControlId, controlData);
+                
+                // Mostrar modal de éxito con mensaje personalizado
+                this.showSuccessModal('Control actualizado exitosamente');
+            } else {
+                // Modo creación: guardar nuevo control
+                storage.saveControl(controlData);
+                
+                // Mostrar modal de éxito
+                this.showSuccessModal('Control guardado exitosamente');
+            }
             
         } catch (error) {
             console.error('Error al guardar control:', error);
-            alert('Error al guardar el control. Por favor, inténtalo de nuevo.');
+            const action = this.editMode ? 'actualizar' : 'guardar';
+            alert(`Error al ${action} el control. Por favor, inténtalo de nuevo.`);
         }
     }
 
-    showSuccessModal() {
-        document.getElementById('successModal').style.display = 'block';
+    showSuccessModal(customMessage = null) {
+        const modal = document.getElementById('successModal');
+        const message = document.querySelector('#successModal .modal-body p');
+        
+        if (customMessage && message) {
+            message.textContent = customMessage;
+        }
+        
+        if (modal) {
+            modal.style.display = 'block';
+        }
     }
 
     hideSuccessModal() {
