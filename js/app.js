@@ -340,6 +340,9 @@ class App {
         if (patientDashboard) patientDashboard.classList.add('hidden');
         if (patientStickyInfo) patientStickyInfo.classList.add('hidden');
         
+        // Remove sticky mode class from body
+        document.body.classList.remove('sticky-mode-active');
+        
         // Limpiar información del ranking cuando no hay alumno seleccionado
         this.clearRankingInfo();
         
@@ -386,6 +389,9 @@ class App {
         if (welcomeScreen) welcomeScreen.classList.add('hidden');
         if (patientDashboard) patientDashboard.classList.remove('hidden');
         if (patientStickyInfo) patientStickyInfo.classList.remove('hidden');
+
+        // Add sticky mode class to body
+        document.body.classList.add('sticky-mode-active');
 
         this.updatePatientInfo(patient);
         this.updateStickyPatientInfo(patient);
@@ -739,6 +745,9 @@ class App {
                 patientStickyInfo.style.display = 'none';
             }
             
+            // Remove sticky mode class since sticky info is hidden
+            document.body.classList.remove('sticky-mode-active');
+            
             // Agregar efecto de "fanfarria" visual al abrir
             this.triggerCelebrationEffect();
         }
@@ -799,6 +808,11 @@ class App {
 
             if (patientStickyInfo) {
                 patientStickyInfo.style.display = '';
+                // Check if patient dashboard is currently shown and add sticky mode class if needed
+                const patientDashboard = document.getElementById('patientDashboard');
+                if (patientDashboard && !patientDashboard.classList.contains('hidden')) {
+                    document.body.classList.add('sticky-mode-active');
+                }
             }
         }
     }

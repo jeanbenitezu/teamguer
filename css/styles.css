@@ -207,6 +207,11 @@ main {
     gap: var(--spacing-sm);
 }
 
+/* Hide brand section when sticky patient info is visible (sticky mode) */
+body.sticky-mode-active .header .brand {
+    display: none;
+}
+
 .header .logo {
     width: 48px;
     height: 48px;
@@ -1049,6 +1054,11 @@ main {
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
+    /* Hide brand section on tablet and smaller screens */
+    .header .brand {
+        display: none;
+    }
+    
     .welcome-screen {
         height: 70vh;
         max-height: 700px;
