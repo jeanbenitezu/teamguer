@@ -673,9 +673,16 @@ class App {
     // === LEADERBOARD ===
     showLeaderboard() {
         const leaderboardSection = document.getElementById('leaderboardSection');
+        const header = document.querySelector('.header');
+        
         if (leaderboardSection) {
             this.loadLeaderboardData();
             leaderboardSection.classList.remove('hidden');
+            
+            // Hide header when leaderboard is displayed
+            if (header) {
+                header.style.display = 'none';
+            }
             
             // Agregar efecto de "fanfarria" visual al abrir
             this.triggerCelebrationEffect();
@@ -723,8 +730,15 @@ class App {
 
     hideLeaderboard() {
         const leaderboardSection = document.getElementById('leaderboardSection');
+        const header = document.querySelector('.header');
+        
         if (leaderboardSection) {
             leaderboardSection.classList.add('hidden');
+            
+            // Show header again when leaderboard is hidden
+            if (header) {
+                header.style.display = '';
+            }
         }
     }
 
