@@ -209,6 +209,16 @@ main {
 
 /* Hide brand section when sticky patient info is visible (sticky mode) */
 body.sticky-mode-active .header .brand {
+    /* display: none; */
+}
+
+body.sticky-mode-active .header .logo {
+    position: fixed;
+    left: 20px;
+    top: 0px;   
+}
+
+body.sticky-mode-active .header .brand .brand-title {
     display: none;
 }
 
@@ -224,9 +234,6 @@ body.sticky-mode-active .header .brand {
     animation-fill-mode: both;
     min-height: 128px;
     min-width: 128px;
-    position: fixed;
-    left: 40vw;
-    top: 0px;
 }
 
 .logo-link {
@@ -248,23 +255,23 @@ body.sticky-mode-active .header .brand {
     0% {
         width: 56px;
         height: 56px;
-        transform: scale(1.1);
+        transform: scale(0.9);
         filter: drop-shadow(0 6px 12px rgba(229, 62, 62, 0.4));
-        top: 40px;
+        top: 0px;
     }
     10% {
         width: 32px;
         height: 32px;
-        transform: scale(0.9);
+        transform: scale(0.6);
         filter: drop-shadow(0 2px 4px rgba(229, 62, 62, 0.3));
-        top: 0px;
+        top: -25px;
     }
     100% {
         width: 32px;
         height: 32px;
-        transform: scale(0.9);
+        transform: scale(0.6);
         filter: drop-shadow(0 2px 4px rgba(229, 62, 62, 0.3));
-        top: 0px;
+        top: -25px;
     }
 }
 
@@ -1091,6 +1098,337 @@ body.sticky-mode-active .header .brand {
     }
 }
 
+/* Portrait TV Optimization (1080x1920) */
+@media (orientation: portrait) and (min-width: 1000px) and (max-width: 1200px) {
+    /* Typography optimization for portrait TV viewing */
+    body {
+        font-size: 18px; /* Increase base font size for TV viewing */
+    }
+    
+    .header {
+        padding: var(--spacing-lg) 0; /* More padding for TV */
+    }
+    
+    .header h1 {
+        font-size: clamp(1.5rem, 4vw, 2.2rem); /* Larger for TV */
+    }
+    
+    .header-actions {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+    }
+    
+    .header-actions .btn {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: 1rem; /* Larger buttons for TV */
+        min-height: 48px;
+    }
+    
+    .patient-select {
+        min-width: 280px;
+        font-size: 1rem;
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+    
+    /* Charts optimization for portrait layout */
+    .charts-grid {
+        grid-template-columns: 1fr; /* Single column for portrait */
+        gap: var(--spacing-xl);
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .chart-container {
+        background: var(--bg-card);
+        border-radius: var(--border-radius-lg);
+        padding: var(--spacing-lg);
+        box-shadow: var(--shadow-lg);
+        min-height: 400px; /* Taller for portrait */
+    }
+    
+    .chart-container canvas {
+        max-height: 500px !important; /* Taller charts for portrait */
+    }
+    
+    /* Progress cards in single column */
+    .progress-cards {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .progress-card {
+        padding: var(--spacing-lg);
+    }
+    
+    /* Sticky patient info optimization */
+    .patient-sticky-info {
+        top: 140px; /* Account for taller header */
+        padding: var(--spacing-md) 0;
+    }
+    
+    .patient-sticky-summary {
+        align-items: center;
+        gap: var(--spacing-sm);
+        text-align: center;
+    }
+    
+    .patient-sticky-summary .patient-name {
+        font-size: 1.8rem; /* Larger for TV */
+    }
+    
+    .patient-sticky-summary .patient-basic-info {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+        font-size: 1rem; /* Larger for TV readability */
+    }
+    
+    /* Dashboard grid optimization */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xl);
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    /* Form optimization for portrait TV */
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+    }
+    
+    .measurements-grid {
+        grid-template-columns: 1fr; /* Single column for portrait TV */
+        gap: var(--spacing-lg);
+    }
+    
+    .measurement-group {
+        padding: var(--spacing-md);
+        background: var(--bg-card);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .measurement-group label {
+        font-size: 1.2rem; /* Larger labels for TV */
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .measurement-group .icon {
+        font-size: 1.5rem; /* Larger icons for TV */
+    }
+    
+    .form-group {
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .form-group label {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 1rem;
+        padding: var(--spacing-sm);
+        min-height: 48px;
+        border: 2px solid var(--border-color); /* Thicker borders for TV */
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        box-shadow: 0 0 0 4px rgba(229, 62, 62, 0.3); /* TV focus indicator */
+        transform: scale(1.02); /* Slight scale for TV feedback */
+    }
+    
+    .input-help {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-top: var(--spacing-xs);
+    }
+    
+    /* Reduce watermark opacity for cleaner portrait view */
+    body::before,
+    body::after {
+        opacity: 0.02;
+    }
+    
+    /* Welcome screen optimization */
+    .welcome-screen {
+        padding: var(--spacing-xl) var(--spacing-lg);
+        max-height: none; /* Allow full height usage */
+    }
+    
+    .welcome-content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .welcome-features {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xl);
+    }
+    
+    .welcome-stats {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--spacing-lg);
+    }
+    
+    /* Recent controls optimization */
+    .recent-controls-list {
+        display: grid;
+        gap: var(--spacing-md);
+    }
+    
+    .control-item {
+        padding: var(--spacing-md);
+    }
+    
+    /* Achievements grid */
+    .achievements-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+    }
+    
+    /* Modal optimization for portrait TV */
+    .modal-content {
+        width: 80%;
+        max-width: 700px;
+        margin: 5% auto;
+    }
+    
+    .modal h2 {
+        font-size: 1.8rem;
+    }
+    
+    .modal .btn {
+        font-size: 1.1rem;
+        padding: var(--spacing-sm) var(--spacing-lg);
+        min-height: 48px;
+    }
+    
+    /* Leaderboard optimization for portrait TV */
+    .leaderboard-list {
+        gap: var(--spacing-lg);
+    }
+    
+    .leaderboard-item {
+        padding: var(--spacing-lg);
+        font-size: 1.1rem;
+    }
+    
+    .leaderboard-rank {
+        font-size: 2rem; /* Larger rank numbers for TV */
+    }
+    
+    .leaderboard-name {
+        font-size: 1.3rem; /* Larger names for TV */
+    }
+    
+    .leaderboard-score {
+        font-size: 1.5rem; /* Larger scores for TV */
+    }
+    
+    /* Patient card optimization */
+    .patient-card {
+        padding: var(--spacing-lg);
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .patient-card h3 {
+        font-size: 1.5rem; /* Larger patient names */
+    }
+    
+    .patient-card .patient-info {
+        font-size: 1rem; /* Larger info text */
+        gap: var(--spacing-md);
+    }
+    
+    /* Button optimizations throughout for TV remote control */
+    .btn {
+        border-width: 2px; /* Thicker borders for better TV visibility */
+        transition: all 0.2s ease; /* Faster transitions for TV responsiveness */
+    }
+    
+    .btn:hover,
+    .btn:focus {
+        transform: scale(1.05); /* Slight scale on focus for TV feedback */
+        box-shadow: 0 0 0 4px rgba(229, 62, 62, 0.3); /* Focus ring for TV navigation */
+    }
+}
+
+/* Exact 1080x1920 Portrait TV Resolution */
+@media (width: 1080px) and (height: 1920px) {
+    /* Specific optimizations for exact TV resolution */
+    .container {
+        max-width: 1000px; /* Use almost full width on this resolution */
+    }
+    
+    /* Smoother scrolling for TV remote navigation */
+    html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 160px; /* Account for sticky elements */
+    }
+    
+    /* Enhanced focus states for TV remote navigation */
+    button:focus,
+    select:focus,
+    input:focus,
+    textarea:focus,
+    .btn:focus {
+        outline: 3px solid var(--teamguer-red);
+        outline-offset: 2px;
+        box-shadow: 0 0 0 6px rgba(229, 62, 62, 0.2);
+    }
+    
+    /* Optimize chart heights specifically for this resolution */
+    .chart-container {
+        min-height: 450px;
+    }
+    
+    .chart-container canvas {
+        max-height: 550px !important;
+    }
+    
+    /* Welcome screen optimized for exact resolution */
+    .welcome-screen {
+        min-height: 1400px; /* Use most of the 1920px height */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    /* Leaderboard optimization for exact TV resolution */
+    .leaderboard-item {
+        min-height: 120px; /* Taller items for TV readability */
+        display: flex;
+        align-items: center;
+        padding: var(--spacing-xl);
+    }
+    
+    /* Modal sizing for TV */
+    .modal-content {
+        width: 85%;
+        max-width: 900px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+}
+
 /* Large Screen TV Optimization */
 @media (min-width: 1920px) {
     .welcome-screen {
@@ -1127,7 +1465,7 @@ body.sticky-mode-active .header .brand {
 /* Barra sticky del alumno */
 .patient-sticky-info {
     position: sticky;
-    top: 72px; /* Debajo del header compacto */
+    top: 60px; /* Debajo del header compacto */
     background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
     border-bottom: 1px solid var(--teamguer-red);
     box-shadow: var(--shadow-sm);
