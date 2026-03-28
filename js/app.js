@@ -1341,7 +1341,7 @@ class App {
             
             <div class="download-footer" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #E2E8F0; text-align: center; color: #666; font-size: 12px;">
                 <p>TEAMGUER - Sistema de Control Corporal</p>
-                <p>Made with ♥ by Jean Benitez</p>
+                <p>by Ismael Guerra</p>
             </div>
         `;
 
@@ -1684,7 +1684,7 @@ class App {
             <!-- Footer -->
             <div class="dashboard-footer" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #E2E8F0; text-align: center; color: #666; font-size: 12px;">
                 <p><strong>TEAMGUER - Sistema de Control Corporal</strong></p>
-                <p>Made with ♥ by Jean Benitez</p>
+                <p>by Ismael Guerra</p>
             </div>
         `;
 
@@ -1879,7 +1879,7 @@ class App {
             <!-- Footer -->
             <div class="dashboard-footer" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #E2E8F0; text-align: center; color: #666; font-size: 12px;">
                 <p><strong>TEAMGUER - Sistema de Control Corporal</strong></p>
-                <p>Made with ♥ by Jean Benitez</p>
+                <p>by Ismael Guerra</p>
                 <div style="margin-top: 10px; font-size: 10px; color: #999;">
                     <p>Este resumen es válido solo como referencia. Consulte con un profesional de la salud para interpretación médica.</p>
                 </div>
