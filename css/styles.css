@@ -1465,7 +1465,7 @@ body.sticky-mode-active .header .brand .brand-title {
 /* Barra sticky del alumno */
 .patient-sticky-info {
     position: sticky;
-    top: 60px; /* Debajo del header compacto */
+    top: 70px; /* Debajo del header compacto */
     background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
     border-bottom: 1px solid var(--teamguer-red);
     box-shadow: var(--shadow-sm);
