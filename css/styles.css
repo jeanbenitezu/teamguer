@@ -1114,7 +1114,7 @@ body.sticky-mode-active .header .brand .brand-title {
     }
     
     .header-actions {
-        justify-content: center;
+        justify-content: flex-end;
         flex-wrap: wrap;
         gap: var(--spacing-sm);
     }
