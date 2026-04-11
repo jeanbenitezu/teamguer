@@ -236,10 +236,10 @@ class NewControlForm {
         if (!this.selectedPatientId) return;
 
         const patient = storage.getPatient(this.selectedPatientId);
-        const weight = parseFloat(document.getElementById('weight').value) || 0;
-        const fatPercentage = parseFloat(document.getElementById('fatPercentage').value) || 0;
-        const musclePercentage = parseFloat(document.getElementById('musclePercentage').value) || 0;
-        const waterPercentage = parseFloat(document.getElementById('waterPercentage').value) || 0;
+        const weight = this.normalizeNumericValue(document.getElementById('weight').value);
+        const fatPercentage = this.normalizeNumericValue(document.getElementById('fatPercentage').value);
+        const musclePercentage = this.normalizeNumericValue(document.getElementById('musclePercentage').value);
+        const waterPercentage = this.normalizeNumericValue(document.getElementById('waterPercentage').value);
 
         // Calcular IMC
         if (patient && patient.height && weight > 0) {
@@ -307,10 +307,10 @@ class NewControlForm {
 
         // Obtener valores actuales del formulario
         const currentValues = {
-            weight: parseFloat(document.getElementById('weight').value) || 0,
-            fatPercentage: parseFloat(document.getElementById('fatPercentage').value) || 0,
-            musclePercentage: parseFloat(document.getElementById('musclePercentage').value) || 0,
-            waterPercentage: parseFloat(document.getElementById('waterPercentage').value) || 0
+            weight: this.normalizeNumericValue(document.getElementById('weight').value),
+            fatPercentage: this.normalizeNumericValue(document.getElementById('fatPercentage').value),
+            musclePercentage: this.normalizeNumericValue(document.getElementById('musclePercentage').value),
+            waterPercentage: this.normalizeNumericValue(document.getElementById('waterPercentage').value)
         };
 
         // Calcular IMC actual si hay datos suficientes
@@ -382,6 +382,30 @@ class NewControlForm {
         return isGoodChange ? 'positive' : 'negative';
     }
 
+    // Función para normalizar valores de entrada (acepta comas y puntos)
+    normalizeNumericValue(value) {
+        if (!value || value === '') return 0;
+        
+        // Convertir a string si no lo es
+        const stringValue = value.toString();
+        
+        // Extraer solo números, puntos y comas
+        const cleaned = stringValue.replace(/[^0-9.,]/g, '');
+        
+        // Reemplazar coma por punto para el parseFloat
+        const normalized = cleaned.replace(',', '.');
+        
+        // Si hay múltiples puntos, tomar solo el último como decimal
+        const parts = normalized.split('.');
+        if (parts.length > 2) {
+            const integerPart = parts.slice(0, -1).join('');
+            const decimalPart = parts[parts.length - 1];
+            return parseFloat(`${integerPart}.${decimalPart}`) || 0;
+        }
+        
+        return parseFloat(normalized) || 0;
+    }
+
     validateForm() {
         const requiredFields = ['weight', 'fatPercentage', 'musclePercentage', 'waterPercentage'];
         const errors = [];
@@ -391,10 +415,10 @@ class NewControlForm {
             errors.push('Debe seleccionar un alumno');
         }
 
-        // Validar campos requeridos
+        // Validar campos requeridos (solo que tengan algún valor numérico)
         requiredFields.forEach(field => {
             const input = document.getElementById(field);
-            const value = parseFloat(input.value);
+            const value = this.normalizeNumericValue(input.value);
             
             if (!value || value <= 0) {
                 errors.push(`${input.previousElementSibling.textContent} es requerido`);
@@ -403,36 +427,6 @@ class NewControlForm {
                 input.classList.remove('error');
             }
         });
-
-        // Validar rangos
-        const weight = parseFloat(document.getElementById('weight').value);
-        const fat = parseFloat(document.getElementById('fatPercentage').value);
-        const muscle = parseFloat(document.getElementById('musclePercentage').value);
-        const water = parseFloat(document.getElementById('waterPercentage').value);
-
-        if (weight && (weight < 20 || weight > 300)) {
-            errors.push('El peso debe estar entre 20 y 300 kg');
-        }
-
-        if (fat && (fat < 3 || fat > 60)) {
-            errors.push('El porcentaje de grasa debe estar entre 3% y 60%');
-        }
-
-        if (muscle && (muscle < 20 || muscle > 70)) {
-            errors.push('El porcentaje de músculo debe estar entre 20% y 70%');
-        }
-
-        if (water && (water < 30 || water > 80)) {
-            errors.push('El porcentaje de agua debe estar entre 30% y 80%');
-        }
-
-        // Validar que los porcentajes sumen aproximadamente 100% (con tolerancia)
-        if (fat && muscle && water) {
-            const total = fat + muscle + water;
-            if (total < 85 || total > 115) {
-                errors.push('La suma de los porcentajes de grasa, músculo y agua parece incorrecta (debería estar cerca del 100%)');
-            }
-        }
 
         return errors;
     }
@@ -449,16 +443,16 @@ class NewControlForm {
         const controlData = {
             patientId: this.selectedPatientId,
             date: document.getElementById('date').value,
-            weight: parseFloat(document.getElementById('weight').value),
-            fatPercentage: parseFloat(document.getElementById('fatPercentage').value),
-            musclePercentage: parseFloat(document.getElementById('musclePercentage').value),
-            waterPercentage: parseFloat(document.getElementById('waterPercentage').value),
-            strongCapacity: parseFloat(document.getElementById('strongCapacity').value) || null,
-            basalMetabolism: parseInt(document.getElementById('basalMetabolism').value) || null,
-            waistCircumference: parseFloat(document.getElementById('waistCircumference').value) || null,
-            armCircumference: parseFloat(document.getElementById('armCircumference').value) || null,
-            thighCircumference: parseFloat(document.getElementById('thighCircumference').value) || null,
-            visceralFat: parseInt(document.getElementById('visceralFat').value) || null,
+            weight: this.normalizeNumericValue(document.getElementById('weight').value),
+            fatPercentage: this.normalizeNumericValue(document.getElementById('fatPercentage').value),
+            musclePercentage: this.normalizeNumericValue(document.getElementById('musclePercentage').value),
+            waterPercentage: this.normalizeNumericValue(document.getElementById('waterPercentage').value),
+            strongCapacity: this.normalizeNumericValue(document.getElementById('strongCapacity').value) || null,
+            basalMetabolism: Math.round(this.normalizeNumericValue(document.getElementById('basalMetabolism').value)) || null,
+            waistCircumference: this.normalizeNumericValue(document.getElementById('waistCircumference').value) || null,
+            armCircumference: this.normalizeNumericValue(document.getElementById('armCircumference').value) || null,
+            thighCircumference: this.normalizeNumericValue(document.getElementById('thighCircumference').value) || null,
+            visceralFat: Math.round(this.normalizeNumericValue(document.getElementById('visceralFat').value)) || null,
             notes: document.getElementById('notes').value.trim()
         };
 
